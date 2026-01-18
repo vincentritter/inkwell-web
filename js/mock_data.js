@@ -2,21 +2,21 @@ const now = Date.now();
 const hoursAgo = (hours) => new Date(now - hours * 60 * 60 * 1000).toISOString();
 
 export const timelineColors = {
-  newest: "#f6f3e8",
-  fresh: "#edf4e3",
-  recent: "#e6eef5",
-  fading: "#ede6f5",
-  old: "#f2ece1",
-  stale: "#efefef"
+  newest: "#f7f9fc",
+  fresh: "#eaf1f7",
+  recent: "#e2edf6",
+  fading: "#e6eaf3",
+  old: "#e9eef5",
+  stale: "#f0f2f6"
 };
 
 export const timelineBorderColors = {
-  newest: "#d9cfb6",
-  fresh: "#c6d8ad",
-  recent: "#b9ccde",
-  fading: "#c3b1d9",
-  old: "#d7c7ae",
-  stale: "#cfcfcf"
+  newest: "#d9e0ea",
+  fresh: "#c9d8e5",
+  recent: "#b7cfe2",
+  fading: "#c4cddd",
+  old: "#cfd7e3",
+  stale: "#d5d9e0"
 };
 
 export const mockPosts = [
