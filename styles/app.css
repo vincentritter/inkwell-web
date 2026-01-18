@@ -229,8 +229,16 @@ h3 {
 } */
 
 .timeline-item.is-active {
-  border-color: rgba(47, 79, 63, 0.4);
-  box-shadow: 0 0 0 1px rgba(47, 79, 63, 0.2);
+  border-color: var(--row-border, rgba(47, 79, 63, 0.4));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent);
+}
+
+.timeline-item:focus,
+.timeline-item:focus-visible,
+.timeline-item:active {
+  outline: none;
+  border-color: var(--row-border, rgba(47, 79, 63, 0.4));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent);
 }
 
 .timeline-item.is-read {

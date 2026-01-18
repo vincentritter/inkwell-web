@@ -1,5 +1,5 @@
 import { Controller } from "../stimulus.js";
-import { timelineColors } from "../mock_data.js";
+import { timelineBorderColors, timelineColors } from "../mock_data.js";
 import { fetchTimeline } from "../api/posts.js";
 import { loadReadIds, markRead } from "../storage/reads.js";
 
@@ -214,9 +214,10 @@ export default class extends Controller {
       .join(" ");
 
     const color = timelineColors[post.age_bucket] || "#fff";
+    const borderColor = timelineBorderColors[post.age_bucket] || "rgba(47, 79, 63, 0.4)";
 
     return `
-      <button type="button" class="${classes}" data-post-id="${post.id}" data-age="${post.age_bucket}" style="--row-color: ${color}">
+      <button type="button" class="${classes}" data-post-id="${post.id}" data-age="${post.age_bucket}" style="--row-color: ${color}; --row-border: ${borderColor};">
         <img class="avatar" src="${post.avatar_url}" alt="${post.source}">
         <div>
           <div class="timeline-title">${title}</div>

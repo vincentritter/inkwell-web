@@ -10,6 +10,15 @@ export const timelineColors = {
   stale: "#efefef"
 };
 
+export const timelineBorderColors = {
+  newest: "#d9cfb6",
+  fresh: "#c6d8ad",
+  recent: "#b9ccde",
+  fading: "#c3b1d9",
+  old: "#d7c7ae",
+  stale: "#cfcfcf"
+};
+
 export const mockPosts = [
   {
     id: "post-001",
