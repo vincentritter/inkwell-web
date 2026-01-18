@@ -1,8 +1,9 @@
 import { Controller } from "../stimulus.js";
 import { fetchReadableContent } from "../api/content.js";
+import { markRead, markUnread } from "../storage/reads.js";
 
 export default class extends Controller {
-  static targets = ["content", "title", "meta"];
+  static targets = ["content", "title", "meta", "markUnread"];
 
   connect() {
     this.handlePostOpen = this.handlePostOpen.bind(this);
@@ -20,6 +21,10 @@ export default class extends Controller {
       return;
     }
 
+    this.currentPostId = post.id;
+    this.currentPostRead = Boolean(post.is_read);
+    this.markUnreadTarget.disabled = false;
+    this.updateReadButton();
     this.titleTarget.textContent = post.title || "Untitled";
     this.metaTarget.textContent = `${post.source} - ${this.formatDate(post.published_at)}`;
     this.contentTarget.innerHTML = "<p class=\"loading\">Loading readable view...</p>";
@@ -35,7 +40,42 @@ export default class extends Controller {
   }
 
   showPlaceholder() {
+    this.currentPostId = null;
+    this.currentPostRead = false;
+    this.markUnreadTarget.disabled = true;
+    this.updateReadButton();
     this.contentTarget.innerHTML = "<p class=\"loading\">Choose a post from the timeline to begin reading.</p>";
+  }
+
+  async toggleRead() {
+    if (!this.currentPostId) {
+      return;
+    }
+
+    try {
+      if (this.currentPostRead) {
+        await markUnread(this.currentPostId);
+      }
+      else {
+        await markRead(this.currentPostId);
+      }
+    }
+    catch (error) {
+      console.warn("Failed to toggle read state", error);
+    }
+
+    this.currentPostRead = !this.currentPostRead;
+    this.updateReadButton();
+    const eventName = this.currentPostRead ? "post:read" : "post:unread";
+    window.dispatchEvent(new CustomEvent(eventName, { detail: { postId: this.currentPostId } }));
+  }
+
+  updateReadButton() {
+    if (!this.markUnreadTarget) {
+      return;
+    }
+
+    this.markUnreadTarget.textContent = this.currentPostRead ? "Mark unread" : "Mark read";
   }
 
   formatDate(isoDate) {

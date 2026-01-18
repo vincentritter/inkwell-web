@@ -308,10 +308,35 @@ h3 {
   gap: 1rem;
 }
 
+.reader-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  text-align: right;
+}
+
 .reader-meta {
-  margin-top: 0.75rem;
+  margin: 0;
   color: var(--ink-muted);
   font-size: 0.85rem;
+}
+
+.mark-unread {
+  border: none;
+  background: var(--ink-fade);
+  color: var(--ink-muted);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.mark-unread:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .highlight-toolbar {

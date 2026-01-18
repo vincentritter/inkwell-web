@@ -19,12 +19,18 @@ export default class extends Controller {
     this.searchActive = false;
     this.readIds = new Set();
     this.handleClick = this.handleClick.bind(this);
+    this.handleUnread = this.handleUnread.bind(this);
+    this.handleRead = this.handleRead.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
+    window.addEventListener("post:unread", this.handleUnread);
+    window.addEventListener("post:read", this.handleRead);
     this.load();
   }
 
   disconnect() {
     this.listTarget.removeEventListener("click", this.handleClick);
+    window.removeEventListener("post:unread", this.handleUnread);
+    window.removeEventListener("post:read", this.handleRead);
   }
 
   async load() {
@@ -121,6 +127,38 @@ export default class extends Controller {
     this.render();
 
     window.dispatchEvent(new CustomEvent("post:open", { detail: { post } }));
+  }
+
+  handleUnread(event) {
+    const postId = event.detail?.postId;
+    if (!postId) {
+      return;
+    }
+
+    const post = this.posts.find((entry) => entry.id === postId);
+    if (!post) {
+      return;
+    }
+
+    post.is_read = false;
+    this.readIds.delete(postId);
+    this.render();
+  }
+
+  handleRead(event) {
+    const postId = event.detail?.postId;
+    if (!postId) {
+      return;
+    }
+
+    const post = this.posts.find((entry) => entry.id === postId);
+    if (!post) {
+      return;
+    }
+
+    post.is_read = true;
+    this.readIds.add(postId);
+    this.render();
   }
 
   render() {

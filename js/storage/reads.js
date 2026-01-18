@@ -27,3 +27,18 @@ export async function markRead(postId) {
   await set(KEY, updated);
   return updated;
 }
+
+export async function markUnread(postId) {
+  if (!postId) {
+    return [];
+  }
+
+  const existing = await loadReadIds();
+  if (!existing.includes(postId)) {
+    return existing;
+  }
+
+  const updated = existing.filter((id) => id !== postId);
+  await set(KEY, updated);
+  return updated;
+}

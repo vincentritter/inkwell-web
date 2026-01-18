@@ -71,7 +71,18 @@
                 <!-- <p class="eyebrow">Reader</p> -->
                 <h2 data-reader-target="title">Select a post</h2>
               </div>
-              <p class="reader-meta" data-reader-target="meta"></p>
+              <div class="reader-actions">
+                <p class="reader-meta" data-reader-target="meta"></p>
+                <button
+                  type="button"
+                  class="mark-unread"
+                  data-reader-target="markUnread"
+                  data-action="reader#toggleRead"
+                  disabled
+                >
+                  Mark unread
+                </button>
+              </div>
             </header>
 
             <article
