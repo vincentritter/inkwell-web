@@ -1,0 +1,82 @@
+.reader-content {
+  font-family: "Fraunces", "Georgia", serif;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #2a241f;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(29, 26, 22, 0.08);
+}
+
+.reader-content p {
+  margin-bottom: 1.25rem;
+}
+
+.reader-content h3 {
+  margin-top: 2rem;
+}
+
+.reader-content a {
+  color: var(--ink-copper);
+}
+
+.reader-content .lead {
+  font-size: 1.2rem;
+  color: #4a4138;
+}
+
+.reader-content .loading {
+  font-family: "Manrope", sans-serif;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.reader-content ::selection {
+  background: rgba(184, 116, 58, 0.25);
+}
+
+.canvas {
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.canvas-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-muted);
+}
+
+.canvas-block {
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  background: #f9f5ee;
+  border: 1px solid rgba(29, 26, 22, 0.08);
+}
+
+.canvas-block .block-meta {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-bottom: 0.5rem;
+}
+
+.canvas-block blockquote {
+  margin: 0 0 0.75rem;
+  font-style: italic;
+  color: #413a33;
+}
+
+.canvas-block textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 26, 22, 0.1);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.canvas-empty {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}

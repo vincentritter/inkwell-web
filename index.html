@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inkwell</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2/css/pico.min.css">
+    <link rel="modulepreload" href="https://unpkg.com/@hotwired/stimulus/dist/stimulus.js">
+    <link rel="stylesheet" href="/styles/app.css">
+    <link rel="stylesheet" href="/styles/reader.css">
+  </head>
+  <body>
+    <main data-controller="auth session">
+      <section class="auth-screen" data-auth-target="signin">
+        <div class="auth-card">
+          <p class="eyebrow">Inkwell</p>
+          <p class="lede">
+            A focused reading space for RSS and JSON Feeds, built for deep attention
+            and highlighting.
+          </p>
+          <button class="contrast" data-action="auth#signin">
+            Sign in with Micro.blog
+          </button>
+        </div>
+      </section>
+
+      <section class="app-shell" data-auth-target="app" hidden>
+        <div class="layout">
+          <aside class="left-pane" data-controller="timeline">
+            <header class="sidebar-header">
+              <div>
+                <p class="eyebrow">Timeline</p>
+                <h2>Feeds</h2>
+              </div>
+              <div class="segments" data-timeline-target="segments">
+                <button type="button" data-segment="latest" data-action="timeline#showLatest" aria-pressed="true">
+                  Latest
+                </button>
+                <button type="button" data-segment="recent" data-action="timeline#showRecent">
+                  Recent
+                </button>
+                <button type="button" data-segment="fading" data-action="timeline#showFading">
+                  Fading
+                </button>
+              </div>
+            </header>
+            <div class="timeline" data-timeline-target="list"></div>
+          </aside>
+
+          <section class="right-pane" data-controller="reader highlight canvas">
+            <header class="reader-header">
+              <div>
+                <p class="eyebrow">Reader</p>
+                <h2 data-reader-target="title">Select a post</h2>
+              </div>
+              <p class="reader-meta" data-reader-target="meta"></p>
+            </header>
+
+            <article
+              class="reader-content"
+              data-reader-target="content"
+              data-highlight-target="content"
+            ></article>
+
+            <div class="highlight-toolbar" data-highlight-target="toolbar" hidden>
+              <button type="button" data-intent="highlight" data-action="highlight#create">Highlight</button>
+              <button type="button" data-intent="note" data-action="highlight#create">Note</button>
+              <button type="button" data-intent="reply" data-action="highlight#create">Reply</button>
+            </div>
+
+            <aside class="canvas" data-canvas-target="blocks"></aside>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>
