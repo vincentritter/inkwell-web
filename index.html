@@ -6,8 +6,8 @@
     <title>Inkwell</title>
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2/css/pico.min.css">
     <link rel="modulepreload" href="https://unpkg.com/@hotwired/stimulus/dist/stimulus.js">
-    <link rel="stylesheet" href="/styles/app.css">
-    <link rel="stylesheet" href="/styles/reader.css">
+    <link rel="stylesheet" href="/styles/app.css?1">
+    <link rel="stylesheet" href="/styles/reader.css?1">
   </head>
   <body>
     <main data-controller="auth session">
@@ -30,7 +30,6 @@
             <header class="sidebar-header">
               <div>
                 <p class="eyebrow">Timeline</p>
-                <h2>Feeds</h2>
               </div>
               <div class="segments" data-timeline-target="segments">
                 <button type="button" data-segment="latest" data-action="timeline#showLatest" aria-pressed="true">
