@@ -107,7 +107,7 @@ export default class extends Controller {
       return;
     }
 
-    this.markUnreadTarget.textContent = this.currentPostRead ? "Mark unread" : "Mark read";
+    this.markUnreadTarget.textContent = this.currentPostRead ? "Mark Unread" : "Mark Read";
   }
 
   formatDate(isoDate) {
