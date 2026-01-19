@@ -70,32 +70,44 @@
           </aside>
 
           <section class="right-pane" data-controller="reader highlight highlights">
-            <div class="reader-pane" data-highlights-target="readerPane">
-              <header class="reader-header">
-                <h2 data-reader-target="title">Select a post</h2>
-                <div class="reader-actions">
-                  <p class="reader-meta" data-reader-target="meta"></p>
-                  <button
-                    type="button"
-                    class="highlights-toggle"
-                    data-action="highlights#showHighlights"
-                    data-highlights-target="toggle"
-                    hidden
-                  >
-                    0 highlights
-                  </button>
-                  <button
-                    type="button"
-                    class="mark-unread"
-                    data-reader-target="markUnread"
-                    data-action="reader#toggleRead"
-                    disabled
-                  >
-                    Mark unread
-                  </button>
-                </div>
-              </header>
+            <header class="reader-header">
+              <div class="segments reader-tabs">
+                <button
+                  type="button"
+                  class="reader-tab"
+                  data-action="highlights#showReader"
+                  data-highlights-target="readerTab"
+                  aria-pressed="true"
+                >
+                  <img class="reader-avatar" src="/images/avatar-placeholder.svg" alt="" data-reader-target="avatar" hidden>
+                  <span data-reader-target="title">Select a post</span>
+                </button>
+                <button
+                  type="button"
+                  class="highlights-toggle"
+                  data-action="highlights#showHighlights"
+                  data-highlights-target="toggle"
+                  aria-pressed="false"
+                  hidden
+                >
+                  0 highlights
+                </button>
+              </div>
+              <div class="reader-actions">
+                <p class="reader-meta" data-reader-target="meta"></p>
+                <button
+                  type="button"
+                  class="mark-unread"
+                  data-reader-target="markUnread"
+                  data-action="reader#toggleRead"
+                  disabled
+                >
+                  Mark unread
+                </button>
+              </div>
+            </header>
 
+            <div class="reader-pane" data-highlights-target="readerPane">
               <article
                 class="reader-content"
                 data-reader-target="content"
@@ -108,16 +120,6 @@
             </div>
 
             <div class="highlights-pane" data-highlights-target="highlightsPane" hidden>
-              <header class="highlights-header">
-                <button
-                  type="button"
-                  class="highlights-back"
-                  data-action="highlights#showReader"
-                >
-                  &larr; Back
-                </button>
-                <h3 class="highlights-title">Highlights</h3>
-              </header>
               <div class="highlights-list" data-highlights-target="list"></div>
             </div>
           </section>

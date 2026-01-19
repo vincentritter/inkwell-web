@@ -3,7 +3,7 @@ import { fetchReadableContent } from "../api/content.js";
 import { markRead, markUnread } from "../storage/reads.js";
 
 export default class extends Controller {
-  static targets = ["content", "title", "meta", "markUnread"];
+  static targets = ["content", "title", "meta", "markUnread", "avatar"];
 
   connect() {
     this.handlePostOpen = this.handlePostOpen.bind(this);
@@ -28,13 +28,16 @@ export default class extends Controller {
     this.currentPostRead = Boolean(post.is_read);
     this.markUnreadTarget.disabled = false;
     this.updateReadButton();
-    this.titleTarget.textContent = post.title || "Untitled";
+    this.setTitle(post.title || "Untitled");
     this.metaTarget.textContent = `${post.source} - ${this.formatDate(post.published_at)}`;
     this.contentTarget.innerHTML = "<p class=\"loading\">Loading readable view...</p>";
+    this.avatarTarget.hidden = false;
+    this.avatarTarget.src = post.avatar_url || "/images/avatar-placeholder.svg";
+    this.avatarTarget.alt = "";
 
     const payload = await fetchReadableContent(post.id);
     const html = payload.html || `<p>${post.summary || "No preview available yet."}</p>`;
-    this.titleTarget.textContent = payload.title || post.title || "Untitled";
+    this.setTitle(payload.title || post.title || "Untitled");
     this.metaTarget.textContent = payload.byline || `${post.source} - ${this.formatDate(post.published_at)}`;
     this.contentTarget.innerHTML = html;
     this.contentTarget.dataset.postId = post.id;
@@ -47,6 +50,10 @@ export default class extends Controller {
     this.currentPostRead = false;
     this.markUnreadTarget.disabled = true;
     this.updateReadButton();
+    this.avatarTarget.hidden = true;
+    this.avatarTarget.src = "/images/avatar-placeholder.svg";
+    this.avatarTarget.alt = "";
+    this.setTitle("Select a post");
     this.contentTarget.innerHTML = "<p class=\"loading\">Choose a post from the timeline to begin reading.</p>";
   }
 
@@ -108,6 +115,22 @@ export default class extends Controller {
     }
 
     this.markUnreadTarget.textContent = this.currentPostRead ? "Mark Unread" : "Mark Read";
+  }
+
+  setTitle(title) {
+    const trimmed = title ? title.trim() : "";
+    const label = this.truncateTitle(trimmed || "Untitled");
+    this.titleTarget.textContent = label;
+    this.titleTarget.title = trimmed || "Untitled";
+  }
+
+  truncateTitle(title) {
+    const words = title.trim().split(/\s+/);
+    if (words.length <= 3) {
+      return title;
+    }
+
+    return `${words.slice(0, 3).join(" ")}...`;
   }
 
   formatDate(isoDate) {

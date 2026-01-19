@@ -2,7 +2,7 @@ import { Controller } from "../stimulus.js";
 import { getHighlightsForPost } from "../storage/highlights.js";
 
 export default class extends Controller {
-  static targets = ["readerPane", "highlightsPane", "list", "toggle"];
+  static targets = ["readerPane", "highlightsPane", "list", "toggle", "readerTab"];
 
   connect() {
     this.activePostId = null;
@@ -44,11 +44,13 @@ export default class extends Controller {
 
     this.readerPaneTarget.hidden = true;
     this.highlightsPaneTarget.hidden = false;
+    this.updateTabs("highlights");
   }
 
   showReader() {
     this.highlightsPaneTarget.hidden = true;
     this.readerPaneTarget.hidden = false;
+    this.updateTabs("reader");
   }
 
   render() {
@@ -78,6 +80,12 @@ export default class extends Controller {
       .join("");
 
     this.listTarget.innerHTML = items;
+  }
+
+  updateTabs(activeTab) {
+    const isReader = activeTab === "reader";
+    this.readerTabTarget.setAttribute("aria-pressed", isReader ? "true" : "false");
+    this.toggleTarget.setAttribute("aria-pressed", isReader ? "false" : "true");
   }
 
   newPost(event) {
