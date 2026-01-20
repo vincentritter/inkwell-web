@@ -299,7 +299,7 @@ export default class extends Controller {
   }
 
   renderPost(post) {
-    const title = post.title || post.summary || "Untitled";
+    const title = post.title ? post.title.trim() : "";
     const summary = post.summary ? `<span>${post.summary}</span>` : "";
     const formattedDate = this.formatDate(post.published_at);
     const status = post.is_archived ? "<span class=\"status-chip\">Archived</span>" : "";
@@ -315,12 +315,13 @@ export default class extends Controller {
 
     const color = timelineColors[post.age_bucket] || "#fff";
     const borderColor = timelineBorderColors[post.age_bucket] || "rgba(47, 79, 63, 0.4)";
+    const titleMarkup = title ? `<div class="timeline-title">${title}</div>` : "";
 
     return `
       <button type="button" class="${classes}" data-post-id="${post.id}" data-age="${post.age_bucket}" style="--row-color: ${color}; --row-border: ${borderColor};">
         <img class="avatar" src="${post.avatar_url}" alt="${post.source}">
         <div>
-          <div class="timeline-title">${title}</div>
+          ${titleMarkup}
           <div class="timeline-meta">
             <span>${post.source}</span>
             <span>${formattedDate}</span>
