@@ -24,6 +24,7 @@ export default class extends Controller {
       return;
     }
 
+    this.element.classList.remove("is-empty");
     this.currentPostTitle = post.title || "Untitled";
     this.currentPostId = post.id;
     this.currentPostRead = Boolean(post.is_read);
@@ -50,6 +51,7 @@ export default class extends Controller {
   }
 
   showPlaceholder() {
+    this.element.classList.add("is-empty");
     this.currentPostId = null;
     this.currentPostRead = false;
     this.markUnreadTarget.disabled = true;
@@ -58,8 +60,21 @@ export default class extends Controller {
     this.avatarTarget.src = "/images/avatar-placeholder.svg";
     this.avatarTarget.alt = "";
     this.setTitle("Select a post");
+    this.metaTarget.textContent = "";
     this.contentTarget.dataset.postTitle = "";
-    this.contentTarget.innerHTML = "<p class=\"loading\">Choose a post from the timeline to begin reading.</p>";
+    this.contentTarget.innerHTML = `
+      <div class="reader-welcome">
+        <p class="reader-welcome-eyebrow">Welcome to Inkwell</p>
+        <p>Select a post to start reading.</p>
+        <p>While reading, select text to make a highlight to blog about.</p>
+        <p>Shortcuts:</p>
+        <ul class="reader-welcome-tips">
+          <li><code>/</code> — search posts</li>
+          <li><code>1, 2, 3</code> — switch tabs</li>
+          <li><code>u</code> — toggle read status</li>
+        </ul>
+      </div>
+    `;
   }
 
   async toggleRead() {
