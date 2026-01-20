@@ -69,8 +69,8 @@ export default class extends Controller {
         <p>While reading, select text to make a highlight to blog about.</p>
         <p>Shortcuts:</p>
         <ul class="reader-welcome-tips">
-          <li><code>/</code> — search posts</li>
           <li><code>1, 2, 3</code> — switch tabs</li>
+          <li><code>/</code> — search posts</li>
           <li><code>u</code> — toggle read status</li>
         </ul>
       </div>

@@ -382,10 +382,28 @@ button:focus:not(:focus-visible) {
   color: var(--ink-muted);
 }
 
+.timeline-meta--compact {
+  font-size: 0.65rem;
+}
+
+.timeline-summary {
+  font-size: 0.75rem;
+  color: var(--ink-ink);
+  margin-bottom: 0.35rem;
+}
+
+.timeline-item.is-read .timeline-summary {
+  color: var(--ink-muted);
+}
+
 .timeline-meta span {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+}
+
+.timeline-meta .timeline-date {
+  flex-basis: 100%;
 }
 
 .status-chip {

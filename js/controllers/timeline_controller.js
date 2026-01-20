@@ -329,7 +329,11 @@ export default class extends Controller {
 
   renderPost(post) {
     const title = post.title ? post.title.trim() : "";
-    const summary = post.summary ? `<span>${post.summary}</span>` : "";
+    const hasTitle = Boolean(title);
+    const summaryText = post.summary ? post.summary.trim() : "";
+    const summaryMarkup = summaryText
+      ? `<div class="timeline-summary">${summaryText}</div>`
+      : "";
     const formattedDate = this.formatDate(post.published_at);
     const status = post.is_archived ? "<span class=\"status-chip\">Archived</span>" : "";
     const showReadState = post.is_read && post.id !== this.activePostId;
@@ -344,18 +348,29 @@ export default class extends Controller {
 
     const color = timelineColors[post.age_bucket] || "#fff";
     const borderColor = timelineBorderColors[post.age_bucket] || "rgba(47, 79, 63, 0.4)";
-    const titleMarkup = title ? `<div class="timeline-title">${title}</div>` : "";
+    const titleMarkup = hasTitle
+      ? `<div class="timeline-title">${title}</div>`
+      : `<div class="timeline-title timeline-title--source">${post.source}</div>`;
+    const metaClass = hasTitle ? "timeline-meta" : "timeline-meta timeline-meta--compact";
+    const metaContent = hasTitle
+      ? `
+        <span>${post.source}</span>
+        ${status}
+        <span class="timeline-date">${formattedDate}</span>
+      `
+      : `
+        ${status}
+        <span class="timeline-date">${formattedDate}</span>
+      `;
 
     return `
       <button type="button" class="${classes}" data-post-id="${post.id}" data-age="${post.age_bucket}" style="--row-color: ${color}; --row-border: ${borderColor};">
         <img class="avatar" src="${post.avatar_url}" alt="${post.source}">
         <div>
           ${titleMarkup}
-          <div class="timeline-meta">
-            <span>${post.source}</span>
-            <span>${formattedDate}</span>
-            ${summary}
-            ${status}
+          ${summaryMarkup}
+          <div class="${metaClass}">
+            ${metaContent}
           </div>
         </div>
       </button>
