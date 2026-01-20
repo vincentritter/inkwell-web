@@ -61,16 +61,54 @@ button:focus:not(:focus-visible) {
   display: grid;
   place-items: center;
   width: 100%;
+  min-height: 100vh;
   padding: 4rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #f6f1e6;
+}
+
+.auth-screen::before,
+.auth-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.auth-screen::before {
+  background-image: url("/images/homepage/background_6_low.jpg");
+}
+
+.auth-screen::after {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.auth-screen.auth-screen--hi-res::after {
+  background-image: url("/images/homepage/background_6_high.jpg");
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-screen::after {
+    transition: none;
+  }
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.6);
   padding: 3rem;
   border-radius: 20px;
   box-shadow: 0 30px 80px var(--ink-shadow);
   max-width: 520px;
   text-align: left;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-card .lede {
@@ -239,22 +277,27 @@ button:focus:not(:focus-visible) {
   margin-bottom: 0;
 }
 
-.search-toggle svg {
+.search-toggle svg,
+.search-toggle img {
   width: 15px;
   height: 15px;
   min-width: 15px;
+  display: block;
+}
+
+.search-toggle svg {
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  display: block;
 }
 
 .search-toggle .icon-close {
   display: none;
   width: 18px;
   height: 18px;
+  min-width: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -262,12 +305,46 @@ button:focus:not(:focus-visible) {
   stroke-linejoin: round;
 }
 
-.search-toggle.is-active .icon-search {
+.search-toggle .icon-spinner {
+  display: none;
+}
+
+.search-toggle.is-active .icon-search,
+.search-toggle.is-active .icon-spinner {
   display: none;
 }
 
 .search-toggle.is-active .icon-close {
   display: block;
+}
+
+.search-toggle.is-syncing .icon-search {
+  display: none;
+}
+
+.search-toggle.is-syncing .icon-spinner {
+  display: block;
+}
+
+.search-toggle.is-syncing .icon-spinner {
+  animation: spinner-rotate 0.9s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.search-toggle.is-active.is-syncing .icon-spinner {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-toggle.is-syncing .icon-spinner {
+    animation: none;
+  }
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .search-field {

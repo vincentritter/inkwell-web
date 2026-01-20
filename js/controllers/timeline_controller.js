@@ -17,6 +17,7 @@ export default class extends Controller {
     this.activePostId = null;
     this.posts = [];
     this.isLoading = true;
+    this.isSyncing = false;
     this.searchActive = false;
     this.readIds = new Set();
     this.handleClick = this.handleClick.bind(this);
@@ -45,6 +46,7 @@ export default class extends Controller {
   }
 
   async load() {
+    this.setSyncing(true);
     try {
       const [posts, readIds] = await Promise.all([fetchTimeline(), loadReadIds()]);
       this.readIds = new Set(readIds);
@@ -62,6 +64,7 @@ export default class extends Controller {
       this.isLoading = false;
       this.listTarget.classList.remove("is-loading");
       this.render();
+      this.setSyncing(false);
     }
   }
 
@@ -123,6 +126,23 @@ export default class extends Controller {
     this.searchToggleTarget.setAttribute(
       "aria-label",
       this.searchActive ? "Close search" : "Search"
+    );
+  }
+
+  setSyncing(isSyncing) {
+    if (this.isSyncing === isSyncing) {
+      return;
+    }
+
+    this.isSyncing = isSyncing;
+    if (this.hasSearchToggleTarget) {
+      this.searchToggleTarget.classList.toggle("is-syncing", isSyncing);
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(isSyncing ? "sync:start" : "sync:stop", {
+        detail: { source: "timeline" }
+      })
     );
   }
 

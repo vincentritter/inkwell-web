@@ -55,6 +55,25 @@ export default class extends Controller {
   showSignin() {
     this.signinTarget.hidden = false;
     this.appTarget.hidden = true;
+    this.preloadSigninBackground();
+  }
+
+  preloadSigninBackground() {
+    if (!this.hasSigninTarget || this.signinBackgroundLoading || this.signinBackgroundLoaded) {
+      return;
+    }
+
+    this.signinBackgroundLoading = true;
+    const image = new Image();
+    image.onload = () => {
+      this.signinBackgroundLoaded = true;
+      this.signinBackgroundLoading = false;
+      this.signinTarget.classList.add("auth-screen--hi-res");
+    };
+    image.onerror = () => {
+      this.signinBackgroundLoading = false;
+    };
+    image.src = "/images/homepage/background_6_high.jpg";
   }
 
   saveMicroBlogToken(event) {
