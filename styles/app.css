@@ -111,7 +111,7 @@ button:focus:not(:focus-visible) {
 .left-pane {
   background: #f4f6f9;
   /* border-radius: 16px; */
-  box-shadow: 0 20px 50px var(--ink-shadow);
+  /* box-shadow: 0 20px 50px var(--ink-shadow); */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -320,7 +320,7 @@ button:focus:not(:focus-visible) {
   width: 100%;
   font-family: inherit;
   appearance: none;
-  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  /* transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; */
   margin-bottom: 10px;
 }
 
@@ -332,14 +332,14 @@ button:focus:not(:focus-visible) {
 .timeline-item.is-active {
   background: color-mix(in srgb, var(--row-color, #fff) 70%, #a9b8c9 30%);
   border-color: var(--row-border, rgba(47, 79, 63, 0.4));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent);
+  /* box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent); */
 }
 
 .timeline-item:focus-visible,
 .timeline-item:active {
   outline: none;
   border-color: var(--row-border, rgba(47, 79, 63, 0.4));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent);
+  /* box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent); */
 }
 
 .timeline-item.is-read {
@@ -399,7 +399,7 @@ button:focus:not(:focus-visible) {
 .right-pane {
   position: relative;
   background: #fff;
-  box-shadow: 0 30px 80px var(--ink-shadow);
+  /* box-shadow: 0 30px 80px var(--ink-shadow); */
   padding: 1rem;
   overflow-y: auto;
   display: flex;
