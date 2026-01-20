@@ -173,7 +173,7 @@ button:focus:not(:focus-visible) {
 }
 
 .segments button[aria-pressed="true"] {
-  background: #dedede;
+  background: #eaeaea;
   color: var(--ink-ink);
   box-shadow: none;
 }
@@ -440,13 +440,6 @@ button:focus:not(:focus-visible) {
 .mark-unread:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.btn-sm {
-  font-size: 0.6rem;
-  padding: 0.2rem 0.65rem;
-  border-radius: 7px;
-  background-color: #f8f8f8;
 }
 
 .highlight-toolbar {
