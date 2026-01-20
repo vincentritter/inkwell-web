@@ -81,13 +81,6 @@
   margin-bottom: 0;
 }
 
-.btn-sm {
-  font-size: 0.6rem;
-  padding: 0.2rem 0.65rem;
-  border-radius: 7px;
-  background-color: #f8f8f8;
-}
-
 .highlight-action:hover {
   border-color: rgba(29, 26, 22, 0.2);
   color: var(--ink-ink);

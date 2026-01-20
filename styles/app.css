@@ -10,7 +10,7 @@
   --ink-shadow: rgba(23, 18, 12, 0.08);
   --ink-link: #4779b2;
   --pico-font-family: system-ui, "San Francisco", "Segoe UI", "Roboto", sans-serif;
-  --pico-border-radius: 12px;
+  --pico-border-radius: 7px;
   --pico-form-element-spacing-vertical: 0.5rem;
   --pico-form-element-spacing-horizontal: 0.75rem;
   --pico-primary: #2f4f3f;
@@ -422,11 +422,10 @@ button:focus:not(:focus-visible) {
 
 .mark-unread {
   border: 1px solid #DDD;
-  background: #EFEFEF;
+  background: #f8f8f8;
   color: var(--ink-muted);
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.7rem;
   cursor: pointer;
   margin: 0;
 }
@@ -434,6 +433,13 @@ button:focus:not(:focus-visible) {
 .mark-unread:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn-sm {
+  font-size: 0.6rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 7px;
+  background-color: #f8f8f8;
 }
 
 .highlight-toolbar {
