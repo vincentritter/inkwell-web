@@ -73,6 +73,11 @@ button:focus:not(:focus-visible) {
   margin: 1rem 0 2rem;
 }
 
+.auth-card label {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.18em;

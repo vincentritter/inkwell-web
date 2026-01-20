@@ -18,6 +18,19 @@
             A focused reading space for RSS and JSON Feeds, built for deep attention
             and highlighting.
           </p>
+          <label>
+            Micro.blog Token
+            <input
+              type="password"
+              placeholder="Paste token"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-auth-target="tokenInput"
+              data-action="change->auth#saveMicroBlogToken blur->auth#saveMicroBlogToken"
+            >
+          </label>
           <button class="contrast" data-action="auth#signin">
             Sign in with Micro.blog
           </button>
