@@ -24,11 +24,13 @@ export default class extends Controller {
     this.handleRead = this.handleRead.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
     this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
+    this.handleAuthReady = this.handleAuthReady.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
     window.addEventListener("post:unread", this.handleUnread);
     window.addEventListener("post:read", this.handleRead);
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("timeline:markAllRead", this.handleMarkAllRead);
+    window.addEventListener("auth:ready", this.handleAuthReady);
     this.listTarget.classList.add("is-loading");
     this.load();
   }
@@ -39,6 +41,7 @@ export default class extends Controller {
     window.removeEventListener("post:read", this.handleRead);
     window.removeEventListener("keydown", this.handleKeydown);
     window.removeEventListener("timeline:markAllRead", this.handleMarkAllRead);
+    window.removeEventListener("auth:ready", this.handleAuthReady);
   }
 
   async load() {
@@ -218,6 +221,10 @@ export default class extends Controller {
     catch (error) {
       console.warn("Failed to mark all read", error);
     }
+  }
+
+  handleAuthReady() {
+    this.load();
   }
 
   shouldIgnoreKey(event) {

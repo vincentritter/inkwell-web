@@ -48,7 +48,7 @@ export async function fetchTimeline() {
     });
   }
   catch (error) {
-    console.warn("Failed to load feeds timeline", error);
+    console.error("Failed to load feeds timeline", error);
     return [...mockPosts];
   }
 }
