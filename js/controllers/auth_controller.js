@@ -9,7 +9,7 @@ export default class extends Controller {
     if (this.hasTokenInputTarget) {
       this.tokenInputTarget.value = getMicroBlogToken() || "";
     }
-    this.showSignin();
+    this.restoreSession();
   }
 
   signin() {
@@ -26,7 +26,8 @@ export default class extends Controller {
 
   restoreSession() {
     const token = getToken();
-    if (token) {
+    const microBlogToken = getMicroBlogToken();
+    if (token || microBlogToken) {
       this.showApp();
       return;
     }
