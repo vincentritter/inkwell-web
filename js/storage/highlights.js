@@ -13,3 +13,15 @@ export async function saveHighlight(highlight) {
 export async function getHighlightsForPost(postId) {
   return (await get(`${KEY_PREFIX}${postId}`)) || [];
 }
+
+export async function deleteHighlight(postId, highlightId) {
+  if (!postId || !highlightId) {
+    return [];
+  }
+
+  const key = `${KEY_PREFIX}${postId}`;
+  const existing = (await get(key)) || [];
+  const updated = existing.filter((highlight) => highlight.id !== highlightId);
+  await set(key, updated);
+  return updated;
+}

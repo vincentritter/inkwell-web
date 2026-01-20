@@ -390,7 +390,7 @@ button:focus:not(:focus-visible) {
   border-radius: 10px;
   padding: 0.9rem 1rem;
   display: grid;
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: 32px 1fr;
   gap: 0.85rem;
   text-align: left;
   border: 1px solid rgba(29, 26, 22, 0.08);
@@ -429,8 +429,8 @@ button:focus:not(:focus-visible) {
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
   object-fit: cover;
   border: 1px solid rgba(29, 26, 22, 0.1);

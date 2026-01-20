@@ -66,8 +66,8 @@ export default class extends Controller {
       <div class="reader-welcome">
         <p class="reader-welcome-eyebrow">Welcome to Inkwell</p>
         <p>Select a post to start reading.</p>
-        <p>While reading, select text to make a highlight to blog about.</p>
-        <p>Shortcuts:</p>
+        <p>Make highlights to remember passages later or to blog quotes from them.</p>
+        <p>Keyboard shortcuts:</p>
         <ul class="reader-welcome-tips">
           <li><code>1, 2, 3</code> — switch tabs</li>
           <li><code>/</code> — search posts</li>

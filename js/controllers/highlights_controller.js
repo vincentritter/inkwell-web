@@ -1,5 +1,5 @@
 import { Controller } from "../stimulus.js";
-import { getHighlightsForPost } from "../storage/highlights.js";
+import { deleteHighlight, getHighlightsForPost } from "../storage/highlights.js";
 
 export default class extends Controller {
   static targets = ["readerPane", "highlightsPane", "list", "toggle", "readerTab"];
@@ -116,13 +116,22 @@ export default class extends Controller {
     }
   }
 
-  deleteHighlight(event) {
+  async deleteHighlight(event) {
     const highlight = this.getHighlightFromEvent(event);
     if (!highlight) {
       return;
     }
 
-    console.info("Delete highlight placeholder", highlight.id);
+    try {
+      await deleteHighlight(highlight.post_id, highlight.id);
+    }
+    catch (error) {
+      console.warn("Failed to delete highlight", error);
+      return;
+    }
+
+    this.highlights = this.highlights.filter((item) => item.id !== highlight.id);
+    this.render();
   }
 
   getHighlightFromEvent(event) {
