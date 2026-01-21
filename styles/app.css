@@ -532,7 +532,7 @@ button:focus:not(:focus-visible) {
 
 .right-pane.is-empty .reader-content {
   width: 100%;
-  max-width: 420px;
+  max-width: 640px;
 }
 
 .right-pane .right-content {
