@@ -50,6 +50,10 @@ export default class extends Controller {
   }
 
   async load() {
+    if (this.isSyncing) {
+      return;
+    }
+
     this.setSyncing(true);
     try {
       const [posts, readIds] = await Promise.all([fetchTimeline(), loadReadIds()]);
@@ -70,6 +74,10 @@ export default class extends Controller {
       this.render();
       this.setSyncing(false);
     }
+  }
+
+  syncTimeline() {
+    this.load();
   }
 
   showToday() {
@@ -216,6 +224,10 @@ export default class extends Controller {
       case "/":
         event.preventDefault();
         this.toggleSearch();
+        break;
+      case "r":
+        event.preventDefault();
+        this.syncTimeline();
         break;
       case "ArrowUp":
         event.preventDefault();
