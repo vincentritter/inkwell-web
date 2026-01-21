@@ -36,6 +36,7 @@ export async function fetchTimeline() {
       return {
         id: String(entry.id),
         source: resolveSource(subscription),
+        source_url: resolveSourceUrl(subscription),
         title: entry.title,
         summary: entry.summary || "",
         url: entry.url,
@@ -69,6 +70,29 @@ function resolveSource(subscription) {
     subscription.feed_url ||
     "Feedbin"
   );
+}
+
+function resolveSourceUrl(subscription) {
+  if (!subscription) {
+    return "";
+  }
+
+  const rawUrl = subscription.site_url || subscription.feed_url || "";
+  if (!rawUrl) {
+    return "";
+  }
+
+  try {
+    return new URL(rawUrl).toString();
+  }
+  catch (error) {
+    try {
+      return new URL(`https://${rawUrl}`).toString();
+    }
+    catch (secondError) {
+      return "";
+    }
+  }
 }
 
 function resolveAvatar(subscription, iconMap) {

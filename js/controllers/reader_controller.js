@@ -153,12 +153,21 @@ export default class extends Controller {
     }
 
     const source = post.source || "";
+    const sourceUrl = post.source_url || "";
     const formattedDate = this.formatDate(post.published_at);
     this.metaTarget.textContent = "";
 
     const fragment = document.createDocumentFragment();
     if (source) {
-      fragment.append(document.createTextNode(source));
+      if (sourceUrl) {
+        const link = document.createElement("a");
+        link.href = sourceUrl;
+        link.textContent = source;
+        fragment.append(link);
+      }
+      else {
+        fragment.append(document.createTextNode(source));
+      }
     }
 
     if (formattedDate) {
