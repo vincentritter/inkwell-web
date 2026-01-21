@@ -97,13 +97,31 @@ export async function createFeedSubscription(feed_url) {
 		return null;
 	}
 
-	return fetchFeedsJson("/feeds/subscriptions.json", {
+	const url = new URL("/feeds/subscriptions.json", `${getFeedsBaseUrl()}/`);
+	const headers = new Headers({
+		"Content-Type": "application/json",
+		"Accept": "application/json"
+	});
+	const token = getMicroBlogToken();
+	if (token) {
+		headers.set("Authorization", `Bearer ${token}`);
+	}
+
+	const response = await fetch(url, {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
+		headers,
 		body: JSON.stringify({ feed_url: trimmed })
 	});
+
+	if (response.status === 300) {
+		return response.json();
+	}
+
+	if (!response.ok) {
+		throw new Error(`Feeds request failed: ${response.status}`);
+	}
+
+	return response.json();
 }
 
 export async function deleteFeedSubscription(subscription_id) {
