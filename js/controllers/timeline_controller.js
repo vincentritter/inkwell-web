@@ -362,8 +362,9 @@ export default class extends Controller {
     const title = post.title ? post.title.trim() : "";
     const hasTitle = Boolean(title);
     const summaryText = post.summary ? post.summary.trim() : "";
+    const summarySnippet = summaryText ? this.truncateSummary(summaryText) : "";
     const summaryMarkup = summaryText
-      ? `<div class="timeline-summary">${summaryText}</div>`
+      ? `<div class="timeline-summary">${summarySnippet}</div>`
       : "";
     const formattedDate = this.formatDate(post.published_at);
     const status = post.is_archived ? "<span class=\"status-chip\">Archived</span>" : "";
@@ -416,6 +417,15 @@ export default class extends Controller {
       hour: "numeric",
       minute: "2-digit"
     }).format(date);
+  }
+
+  truncateSummary(summary) {
+    const maxLength = 100;
+    if (summary.length <= maxLength) {
+      return summary;
+    }
+
+    return `${summary.slice(0, maxLength).trimEnd()}...`;
   }
 
   async persistRead(postId) {
