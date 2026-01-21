@@ -95,7 +95,7 @@ export default class extends Controller {
       return;
     }
     const avatar = getMicroBlogAvatar();
-    this.avatarTarget.src = avatar || "/images/avatar-placeholder.svg";
+    this.avatarTarget.src = avatar || "/images/blank_avatar.png";
     this.avatarTarget.alt = "User avatar";
   }
 

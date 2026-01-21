@@ -7,7 +7,7 @@ import {
   fetchFeedUnreadEntryIds
 } from "./feeds.js";
 
-const DEFAULT_AVATAR_URL = "/images/avatar-placeholder.svg";
+const DEFAULT_AVATAR_URL = "/images/blank_avatar.png";
 
 export async function fetchTimeline() {
   try {

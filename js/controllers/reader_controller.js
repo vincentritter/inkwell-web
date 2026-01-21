@@ -35,7 +35,7 @@ export default class extends Controller {
     this.setMeta(post);
     this.contentTarget.innerHTML = "<p class=\"loading\">Loading readable view...</p>";
     this.avatarTarget.hidden = false;
-    this.avatarTarget.src = post.avatar_url || "/images/avatar-placeholder.svg";
+    this.avatarTarget.src = post.avatar_url || "/images/blank_avatar.png";
     this.avatarTarget.alt = "";
     this.contentTarget.dataset.postTitle = this.currentPostTitle;
 
@@ -58,7 +58,7 @@ export default class extends Controller {
     this.markUnreadTarget.disabled = true;
     this.updateReadButton();
     this.avatarTarget.hidden = true;
-    this.avatarTarget.src = "/images/avatar-placeholder.svg";
+    this.avatarTarget.src = "/images/blank_avatar.png";
     this.avatarTarget.alt = "";
     this.setTitle("Select a post");
     this.metaTarget.textContent = "";
