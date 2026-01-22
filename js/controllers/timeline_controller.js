@@ -378,7 +378,10 @@ export default class extends Controller {
     const summaryMarkup = summaryText
       ? `<div class="timeline-summary">${summarySnippet}</div>`
       : "";
-    const formattedDate = this.formatDate(post.published_at);
+	const show_time_only = !this.searchActive && this.activeSegment === "today";
+	const formattedDate = show_time_only
+		? this.formatTime(post.published_at)
+		: this.formatDate(post.published_at);
     const status = post.is_archived ? "<span class=\"status-chip\">Archived</span>" : "";
     const showReadState = post.is_read && post.id !== this.activePostId;
     const classes = [
@@ -430,6 +433,14 @@ export default class extends Controller {
       minute: "2-digit"
     }).format(date);
   }
+
+	formatTime(isoDate) {
+		const date = new Date(isoDate);
+		return new Intl.DateTimeFormat("en-US", {
+			hour: "numeric",
+			minute: "2-digit"
+		}).format(date);
+	}
 
   truncateSummary(summary) {
     const maxLength = 100;
