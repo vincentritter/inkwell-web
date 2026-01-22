@@ -465,6 +465,8 @@ button:focus:not(:focus-visible) {
   font-size: 0.75rem;
   color: var(--ink-ink);
   margin-bottom: 0.35rem;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .timeline-meta {
@@ -483,6 +485,8 @@ button:focus:not(:focus-visible) {
   font-size: 0.75rem;
   color: var(--ink-ink);
   margin-bottom: 0.35rem;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .timeline-item.is-read .timeline-summary {
