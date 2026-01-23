@@ -1,4 +1,5 @@
-const MICRO_BLOG_BASE_URL = "http://localhost:3000";
+// const MICRO_BLOG_BASE_URL = "http://localhost:3000";
+const MICRO_BLOG_BASE_URL = "https://micro.blog";
 const MICRO_BLOG_TOKEN_KEY = "inkwell_microblog_token";
 const MICRO_BLOG_AVATAR_KEY = "inkwell_microblog_avatar";
 
