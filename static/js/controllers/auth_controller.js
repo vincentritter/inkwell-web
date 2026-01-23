@@ -27,8 +27,9 @@ export default class extends Controller {
 			return;
 		}
 		const app_url = this.getAppUrl();
+		const client_id_url = this.getClientIdUrl(app_url);
 		const params = new URLSearchParams({
-			client_id: app_url,
+			client_id: client_id_url,
 			scope: "create",
 			state: state_value,
 			response_type: "code",
@@ -122,6 +123,10 @@ export default class extends Controller {
 		return `${current_url.origin}${current_url.pathname}`;
 	}
 
+	getClientIdUrl(app_url) {
+		return new URL("client.json", app_url).toString();
+	}
+
 	createOAuthState() {
 		if (!window.crypto?.getRandomValues) {
 			return "";
@@ -164,7 +169,8 @@ export default class extends Controller {
 
 		try {
 			const app_url = this.getAppUrl();
-			const access_token = await this.fetchAccessToken(auth_code, app_url);
+			const client_id_url = this.getClientIdUrl(app_url);
+			const access_token = await this.fetchAccessToken(auth_code, app_url, client_id_url);
 			if (!access_token) {
 				return;
 			}
@@ -176,10 +182,10 @@ export default class extends Controller {
 		}
 	}
 
-	async fetchAccessToken(auth_code, app_url) {
+	async fetchAccessToken(auth_code, app_url, client_id_url) {
 		const body = new URLSearchParams({
 			code: auth_code,
-			client_id: app_url,
+			client_id: client_id_url,
 			grant_type: "authorization_code",
 			redirect_uri: app_url
 		});
