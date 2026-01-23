@@ -52,6 +52,11 @@ h2 {
   padding-bottom: 0;
 }
 
+blockquote {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
 button[type="submit"] {
 	font-size: 0.9rem;
 	padding-left: 7px;

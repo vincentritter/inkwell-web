@@ -6,6 +6,7 @@ Style:
 
 * Local variables use snake_case with underscores.
 * Prefer using real tabs instead of spaces for HTML, CSS, and JS indentation.
+* Prefer == instead of ===, and != instead of !==.
 
 Frameworks:
 

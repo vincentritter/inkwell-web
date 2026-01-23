@@ -9,6 +9,7 @@ const SEGMENT_BUCKETS = {
   recent: ["day-2", "day-3"],
   fading: ["day-4", "day-5", "day-6", "day-7"]
 };
+const HIDE_READ_KEY = "inkwell_hide_read";
 
 export default class extends Controller {
   static targets = ["list", "segments", "search", "searchToggle", "searchInput"];
@@ -20,16 +21,20 @@ export default class extends Controller {
     this.isLoading = true;
     this.isSyncing = false;
     this.searchActive = false;
+		this.searchQuery = "";
     this.readIds = new Set();
     this.pendingReadIds = new Set();
     this.readSyncTimer = null;
+		this.hideRead = this.loadHideReadSetting();
     this.handleClick = this.handleClick.bind(this);
     this.handleUnread = this.handleUnread.bind(this);
     this.handleRead = this.handleRead.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
+		this.handleSearchKeydown = this.handleSearchKeydown.bind(this);
     this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
     this.handleAuthReady = this.handleAuthReady.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
+		this.searchInputTarget.addEventListener("keydown", this.handleSearchKeydown);
     window.addEventListener("post:unread", this.handleUnread);
     window.addEventListener("post:read", this.handleRead);
     window.addEventListener("keydown", this.handleKeydown);
@@ -41,6 +46,7 @@ export default class extends Controller {
 
   disconnect() {
     this.listTarget.removeEventListener("click", this.handleClick);
+		this.searchInputTarget.removeEventListener("keydown", this.handleSearchKeydown);
     window.removeEventListener("post:unread", this.handleUnread);
     window.removeEventListener("post:read", this.handleRead);
     window.removeEventListener("keydown", this.handleKeydown);
@@ -115,6 +121,7 @@ export default class extends Controller {
     this.searchTarget.hidden = true;
     this.segmentsTarget.hidden = false;
     this.searchInputTarget.value = "";
+		this.searchQuery = "";
     this.updateSearchToggle();
     this.render();
   }
@@ -229,6 +236,17 @@ export default class extends Controller {
         event.preventDefault();
         this.syncTimeline();
         break;
+			case "Enter":
+				if (this.isSearchFocused() || !this.activePostId) {
+					break;
+				}
+				event.preventDefault();
+				this.openActivePost();
+				break;
+			case "h":
+				event.preventDefault();
+				this.toggleHideRead();
+				break;
       case "ArrowUp":
         event.preventDefault();
         this.selectAdjacentPost(-1);
@@ -241,6 +259,48 @@ export default class extends Controller {
         break;
     }
   }
+
+	handleSearchKeydown(event) {
+		if (event.key !== "Enter") {
+			return;
+		}
+
+		event.preventDefault();
+		this.performSearch();
+	}
+
+	performSearch() {
+		const search_query = this.searchInputTarget.value.trim();
+		this.searchQuery = search_query;
+		this.render();
+	}
+
+	openActivePost() {
+		if (!this.activePostId) {
+			return;
+		}
+
+		const active_post = this.posts.find((entry) => entry.id === this.activePostId);
+		if (!active_post) {
+			return;
+		}
+
+		const post_url = (active_post.url || "").trim();
+		if (!post_url) {
+			return;
+		}
+
+		window.open(post_url, "_blank", "noopener");
+	}
+
+	isSearchFocused() {
+		const active_element = document.activeElement;
+		if (!active_element) {
+			return false;
+		}
+
+		return this.searchInputTarget === active_element;
+	}
 
   async handleMarkAllRead() {
     if (!this.posts.length) {
@@ -360,15 +420,54 @@ export default class extends Controller {
   }
 
   getVisiblePosts() {
+		let visible_posts = [];
     if (this.searchActive) {
-      return [...this.posts].sort(
-        (a, b) => new Date(b.published_at) - new Date(a.published_at)
-      );
+			visible_posts = this.getSearchResults();
     }
+		else {
+			const segment_buckets = SEGMENT_BUCKETS[this.activeSegment] || [];
+			visible_posts = this.posts.filter((post) => segment_buckets.includes(post.age_bucket));
+		}
 
-    const buckets = SEGMENT_BUCKETS[this.activeSegment] || [];
-    return this.posts.filter((post) => buckets.includes(post.age_bucket));
+		if (!this.searchActive && this.hideRead) {
+			visible_posts = visible_posts.filter(
+				(post) => !post.is_read || post.id === this.activePostId
+			);
+		}
+
+		return visible_posts;
   }
+
+	getSearchResults() {
+		const search_query = this.searchQuery.trim().toLowerCase();
+		let matching_posts = this.posts;
+
+		if (search_query) {
+			matching_posts = this.posts.filter((post) => this.postMatchesSearch(post, search_query));
+		}
+
+		return [...matching_posts].sort(
+			(a, b) => new Date(b.published_at) - new Date(a.published_at)
+		);
+	}
+
+
+	postMatchesSearch(post, search_query) {
+		const search_fields = [
+			post.title,
+			post.summary,
+			post.source,
+			post.url
+		];
+
+		return search_fields.some((field) => {
+			if (!field) {
+				return false;
+			}
+
+			return field.toLowerCase().includes(search_query);
+		});
+	}
 
   renderPost(post) {
     const title = post.title ? post.title.trim() : "";
@@ -450,6 +549,22 @@ export default class extends Controller {
 
     return `${summary.slice(0, maxLength).trimEnd()}...`;
   }
+
+	loadHideReadSetting() {
+		const stored_hide_read = localStorage.getItem(HIDE_READ_KEY);
+		return stored_hide_read === "true";
+	}
+
+	persistHideReadSetting() {
+		const stored_hide_read = this.hideRead ? "true" : "false";
+		localStorage.setItem(HIDE_READ_KEY, stored_hide_read);
+	}
+
+	toggleHideRead() {
+		this.hideRead = !this.hideRead;
+		this.persistHideReadSetting();
+		this.render();
+	}
 
   async persistRead(postId) {
     try {
