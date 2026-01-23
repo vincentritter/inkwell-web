@@ -114,7 +114,14 @@ export default class extends Controller {
 			}
 			else {
 				this.subscriptions = [];
-				this.showStatus("Unable to load subscriptions.");
+				let response_text = "";
+				if (error && typeof error.response_text == "string") {
+					response_text = error.response_text.trim();
+				}
+				const status_message = response_text
+					? `Unable to load subscriptions. ${response_text}`
+					: "Unable to load subscriptions.";
+				this.showStatus(status_message);
 			}
 		}
 		finally {

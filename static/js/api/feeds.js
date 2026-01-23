@@ -258,7 +258,10 @@ async function fetchFeedsJson(path, options = {}) {
   try {
     const response = await fetch(url, { ...options, headers });
     if (!response.ok) {
-      throw new Error(`Feeds request failed: ${response.status}`);
+      const response_text = await response.text();
+      const request_error = new Error(`Feeds request failed: ${response.status}`);
+      request_error.response_text = response_text;
+      throw request_error;
     }
     return response.json();
   }
