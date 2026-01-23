@@ -35,6 +35,12 @@ body > main {
   padding-block: 0;
 }
 
+main[data-auth-state="loading"] .auth-screen,
+main[data-auth-state="loading"] .app-shell {
+	opacity: 0;
+	pointer-events: none;
+}
+
 article {
   box-shadow: none;
 }
@@ -409,7 +415,7 @@ button:focus:not(:focus-visible) {
 .timeline-item {
   background: var(--row-color, #fff);
   border-radius: 10px;
-  padding: 0.9rem 1rem;
+  padding: 0.6rem;
   display: grid;
   grid-template-columns: 32px 1fr;
   gap: 0.85rem;
@@ -529,8 +535,43 @@ button:focus:not(:focus-visible) {
 }
 
 .right-pane.is-empty {
-  justify-content: center;
-  padding: 2.5rem 1.5rem;
+	justify-content: center;
+	padding: 2.5rem 1.5rem;
+	background: #f6f1e6;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+.right-pane.is-empty::before,
+.right-pane.is-empty::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	z-index: 0;
+	pointer-events: none;
+}
+
+.right-pane.is-empty::before {
+	background-image: url("/images/homepage/background_6_low.jpg");
+}
+
+.right-pane.is-empty::after {
+	opacity: 0;
+	transition: opacity 1.2s ease;
+}
+
+.right-pane.is-empty.right-pane--hi-res::after {
+	background-image: url("/images/homepage/background_6_high.jpg");
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.right-pane.is-empty::after {
+		transition: none;
+	}
 }
 
 .right-pane.is-empty .reader-header {
@@ -545,6 +586,8 @@ button:focus:not(:focus-visible) {
   width: 100%;
   max-width: none;
   margin: 0;
+	position: relative;
+	z-index: 1;
 }
 
 .right-pane.is-empty .reader-pane {
@@ -558,6 +601,9 @@ button:focus:not(:focus-visible) {
 .right-pane.is-empty .reader-content {
   width: 100%;
   max-width: 640px;
+	background: transparent;
+	border: none;
+	padding: 0;
 }
 
 .right-pane .right-content {

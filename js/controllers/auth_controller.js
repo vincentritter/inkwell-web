@@ -45,17 +45,19 @@ export default class extends Controller {
   }
 
   showApp() {
-    this.appTarget.hidden = false;
-    this.signinTarget.hidden = true;
-    this.updateAvatarFromStorage();
-    this.syncAvatar();
-    window.dispatchEvent(new CustomEvent("auth:ready"));
+		this.element.dataset.authState = "signed-in";
+		this.appTarget.hidden = false;
+		this.signinTarget.hidden = true;
+		this.updateAvatarFromStorage();
+		this.syncAvatar();
+		window.dispatchEvent(new CustomEvent("auth:ready"));
   }
 
   showSignin() {
-    this.signinTarget.hidden = false;
-    this.appTarget.hidden = true;
-    this.preloadSigninBackground();
+		this.element.dataset.authState = "signed-out";
+		this.signinTarget.hidden = false;
+		this.appTarget.hidden = true;
+		this.preloadSigninBackground();
   }
 
   preloadSigninBackground() {

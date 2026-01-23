@@ -291,7 +291,7 @@ export default class extends Controller {
 			return;
 		}
 
-		window.open(post_url, "_blank", "noopener");
+		window.location.href = post_url;
 	}
 
 	isSearchFocused() {

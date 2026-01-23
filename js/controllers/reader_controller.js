@@ -79,7 +79,26 @@ export default class extends Controller {
         <p>What is the <code>Fading</code> tab? Posts older than a few days are collected here. After a week, they are automatically archived, so your unread posts never get out of control.</p>
       </div>
     `;
+		this.preloadWelcomeBackground();
   }
+
+	preloadWelcomeBackground() {
+		if (this.welcomeBackgroundLoading || this.welcomeBackgroundLoaded) {
+			return;
+		}
+
+		this.welcomeBackgroundLoading = true;
+		const image = new Image();
+		image.onload = () => {
+			this.welcomeBackgroundLoaded = true;
+			this.welcomeBackgroundLoading = false;
+			this.element.classList.add("right-pane--hi-res");
+		};
+		image.onerror = () => {
+			this.welcomeBackgroundLoading = false;
+		};
+		image.src = "/images/homepage/background_6_high.jpg";
+	}
 
   async toggleRead() {
     if (!this.currentPostId) {
