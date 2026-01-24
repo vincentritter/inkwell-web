@@ -28,6 +28,7 @@ export default class extends Controller {
     this.pendingReadIds = new Set();
     this.readSyncTimer = null;
 		this.hideRead = this.loadHideReadSetting();
+		this.hideReadSnapshotIds = new Set();
     this.handleClick = this.handleClick.bind(this);
     this.handleUnread = this.handleUnread.bind(this);
     this.handleRead = this.handleRead.bind(this);
@@ -195,6 +196,7 @@ export default class extends Controller {
 
     post.is_read = false;
     this.readIds.delete(postId);
+		this.hideReadSnapshotIds.delete(postId);
     this.render();
   }
 
@@ -449,24 +451,33 @@ export default class extends Controller {
     activeItem.scrollIntoView({ block: "nearest" });
   }
 
-  getVisiblePosts() {
-		let visible_posts = [];
-    if (this.searchActive) {
-			visible_posts = this.getSearchResults();
-    }
-		else {
-			const segment_buckets = SEGMENT_BUCKETS[this.activeSegment] || [];
-			visible_posts = this.posts.filter((post) => segment_buckets.includes(post.age_bucket));
-		}
+	getVisiblePosts() {
+		let visible_posts = this.getBasePosts();
 
 		if (!this.searchActive && this.hideRead) {
-			visible_posts = visible_posts.filter(
-				(post) => !post.is_read || post.id === this.activePostId
-			);
+			if (this.hideReadSnapshotIds.size === 0) {
+				visible_posts = visible_posts.filter(
+					(post) => !post.is_read || post.id === this.activePostId
+				);
+			}
+			else {
+				visible_posts = visible_posts.filter(
+					(post) => !this.hideReadSnapshotIds.has(post.id) || post.id === this.activePostId
+				);
+			}
 		}
 
 		return visible_posts;
   }
+
+	getBasePosts() {
+		if (this.searchActive) {
+			return this.getSearchResults();
+		}
+
+		const segment_buckets = SEGMENT_BUCKETS[this.activeSegment] || [];
+		return this.posts.filter((post) => segment_buckets.includes(post.age_bucket));
+	}
 
 	getSearchResults() {
 		const search_query = this.searchQuery.trim().toLowerCase();
@@ -602,7 +613,24 @@ export default class extends Controller {
 	toggleHideRead() {
 		this.hideRead = !this.hideRead;
 		this.persistHideReadSetting();
+		if (this.hideRead) {
+			this.captureHideReadSnapshot();
+		}
+		else {
+			this.hideReadSnapshotIds.clear();
+		}
 		this.render();
+	}
+
+	captureHideReadSnapshot() {
+		if (this.searchActive) {
+			return;
+		}
+
+		const visible_posts = this.getBasePosts();
+		this.hideReadSnapshotIds = new Set(
+			visible_posts.filter((post) => post.is_read).map((post) => post.id)
+		);
 	}
 
   async persistRead(postId) {
