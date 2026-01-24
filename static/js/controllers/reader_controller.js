@@ -44,7 +44,7 @@ export default class extends Controller {
 		const safe_summary = this.escapeHtml(summary_fallback);
 		let safe_html = `<p>${safe_summary}</p>`;
 		if (payload.html) {
-			safe_html = this.escapeHtml(payload.html);
+			safe_html = this.sanitizeHtml(payload.html);
 		}
     this.currentPostTitle = payload.title || post.title || "Untitled";
     this.setTitle(this.currentPostTitle);
@@ -223,13 +223,44 @@ export default class extends Controller {
     return `${words.slice(0, 3).join(" ")}...`;
   }
 
-  formatDate(isoDate) {
-    const date = new Date(isoDate);
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric"
-    }).format(date);
-  }
+	formatDate(isoDate) {
+		const date = new Date(isoDate);
+		return new Intl.DateTimeFormat("en-US", {
+			month: "short",
+			day: "numeric"
+		}).format(date);
+	}
+
+	sanitizeHtml(markup) {
+		if (!markup) {
+			return "";
+		}
+
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(markup, "text/html");
+		const blocked_tags = ["script", "style", "iframe", "object", "embed", "link", "meta"];
+		blocked_tags.forEach((tag) => {
+			doc.querySelectorAll(tag).forEach((node) => node.remove());
+		});
+
+		const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
+		let node = walker.nextNode();
+		while (node) {
+			[...node.attributes].forEach((attribute) => {
+				const name = attribute.name.toLowerCase();
+				const value = attribute.value.trim().toLowerCase();
+				if (name.startsWith("on")) {
+					node.removeAttribute(attribute.name);
+				}
+				if ((name == "href" || name == "src") && value.startsWith("javascript:")) {
+					node.removeAttribute(attribute.name);
+				}
+			});
+			node = walker.nextNode();
+		}
+
+		return doc.body.innerHTML;
+	}
 
 	escapeHtml(value) {
 		const text = value || "";
