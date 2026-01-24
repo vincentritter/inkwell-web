@@ -26,9 +26,10 @@ export default class extends Controller {
 		this.searchQuery = "";
     this.readIds = new Set();
     this.pendingReadIds = new Set();
-    this.readSyncTimer = null;
+		this.readSyncTimer = null;
 		this.hideRead = this.loadHideReadSetting();
 		this.hideReadSnapshotIds = new Set();
+		this.hideReadSnapshotActive = false;
     this.handleClick = this.handleClick.bind(this);
     this.handleUnread = this.handleUnread.bind(this);
     this.handleRead = this.handleRead.bind(this);
@@ -455,7 +456,7 @@ export default class extends Controller {
 		let visible_posts = this.getBasePosts();
 
 		if (!this.searchActive && this.hideRead) {
-			if (this.hideReadSnapshotIds.size === 0) {
+			if (!this.hideReadSnapshotActive) {
 				visible_posts = visible_posts.filter(
 					(post) => !post.is_read || post.id === this.activePostId
 				);
@@ -615,9 +616,11 @@ export default class extends Controller {
 		this.persistHideReadSetting();
 		if (this.hideRead) {
 			this.captureHideReadSnapshot();
+			this.hideReadSnapshotActive = true;
 		}
 		else {
 			this.hideReadSnapshotIds.clear();
+			this.hideReadSnapshotActive = false;
 		}
 		this.render();
 	}
