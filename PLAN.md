@@ -98,7 +98,7 @@ Timeline Segments
 Color Buckets for Timeline Rows
 - Data object in `js/mock_data.js` (or constants in `js/app.js`) with 5-6 colors.
 - Example structure:
-  timelineColors = {
+  timelineCellColors = {
     newest: "#F6F3E8",
     fresh: "#EDF4E3",
     recent: "#E6EEF5",
@@ -147,7 +147,7 @@ Canvas Block
 
 Mock Data (Before API)
 - Create a `js/mock_data.js` file with:
-  - `timelineColors` object
+  - `timelineCellColors` object
   - `mockPosts` array (10-20 posts)
   - `mockReaderContent` map keyed by post id
 - Each post includes `is_read` and `is_archived` booleans and an `age_bucket`.

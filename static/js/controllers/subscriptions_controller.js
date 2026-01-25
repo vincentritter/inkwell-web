@@ -60,6 +60,16 @@ export default class extends Controller {
 		}
 	}
 
+	startNewFeed(event) {
+		event.preventDefault();
+		this.mode = "subscribe";
+		this.updateFormVisibility();
+		this.clearStatus();
+		requestAnimationFrame(() => {
+			this.inputTarget.focus();
+		});
+	}
+
 	handlePostOpen() {
 		this.hidePane();
 		this.setReaderEmptyState(false);

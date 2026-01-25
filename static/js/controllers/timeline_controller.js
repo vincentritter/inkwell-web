@@ -1,5 +1,5 @@
 import { Controller } from "../stimulus.js";
-import { timelineBorderColors, timelineColors } from "../mock_data.js";
+import { timelineBorderColors, timelineCellColors } from "../colors.js";
 import { fetchTimelineData } from "../api/posts.js";
 import { markFeedEntriesRead } from "../api/feeds.js";
 import { loadReadIds, markAllRead, markRead } from "../storage/reads.js";
@@ -549,7 +549,7 @@ export default class extends Controller {
       .filter(Boolean)
       .join(" ");
 
-    const color = timelineColors[post.age_bucket] || "#fff";
+    const color = timelineCellColors[post.age_bucket] || "#fff";
     const borderColor = timelineBorderColors[post.age_bucket] || "rgba(47, 79, 63, 0.4)";
     const titleMarkup = hasTitle
       ? `<div class="timeline-title">${safe_title}</div>`

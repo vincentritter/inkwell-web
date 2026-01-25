@@ -629,11 +629,27 @@ button:focus:not(:focus-visible) {
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.subscriptions-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
 }
 
 .subscriptions-header h2 {
 	margin: 0;
 	font-size: 1rem;
+}
+
+.subscriptions-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
 }
 
 .subscriptions-form {
