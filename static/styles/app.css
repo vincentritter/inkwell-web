@@ -713,7 +713,7 @@ button:focus:not(:focus-visible) {
 
 .subscription-title {
 	margin: 0;
-	font-size: 0.95rem;
+	font-size: 0.8rem;
 	font-weight: 600;
 	color: var(--ink-ink);
 }

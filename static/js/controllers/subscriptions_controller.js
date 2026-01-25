@@ -198,6 +198,33 @@ export default class extends Controller {
 		}
 	}
 
+	exportSubscriptions(event) {
+		event.preventDefault();
+		this.clearStatus();
+
+		if (this.is_loading) {
+			this.showStatus("Loading subscriptions. Please try again.");
+			return;
+		}
+
+		if (!Array.isArray(this.subscriptions) || this.subscriptions.length == 0) {
+			this.showStatus("No subscriptions to export.");
+			return;
+		}
+
+		const opml = this.buildOpml(this.subscriptions);
+		const blob = new Blob([opml], { type: "text/xml" });
+		const download_url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		const date_stamp = new Date().toISOString().slice(0, 10);
+		link.href = download_url;
+		link.download = `inkwell-subscriptions-${date_stamp}.opml`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(download_url);
+	}
+
 	renderLoading() {
 		this.listTarget.innerHTML = "<p class=\"subscriptions-empty\">Loading subscriptions...</p>";
 	}
@@ -248,6 +275,59 @@ export default class extends Controller {
 	getSubscriptionUrl(subscription) {
 		const url = subscription?.site_url || subscription?.feed_url || "";
 		return url.trim();
+	}
+
+	getSubscriptionFeedUrl(subscription) {
+		const url = subscription?.feed_url || "";
+		return url.trim();
+	}
+
+	getSubscriptionSiteUrl(subscription) {
+		const url = subscription?.site_url || "";
+		return url.trim();
+	}
+
+	buildOpml(subscriptions) {
+		const created_at = new Date().toISOString();
+		const sorted = [...subscriptions].sort((left, right) => {
+			const left_title = this.getSubscriptionTitle(left);
+			const right_title = this.getSubscriptionTitle(right);
+			return left_title.localeCompare(right_title);
+		});
+		const outlines = sorted
+			.map((subscription) => {
+				const title = this.escapeHtml(this.getSubscriptionTitle(subscription));
+				const feed_url = this.escapeHtml(this.getSubscriptionFeedUrl(subscription));
+				const site_url = this.escapeHtml(this.getSubscriptionSiteUrl(subscription));
+				const xml_url = feed_url || site_url;
+				if (!xml_url) {
+					return "";
+				}
+				const attributes = [
+					`text="${title}"`,
+					`title="${title}"`,
+					`type="rss"`,
+					xml_url ? `xmlUrl="${xml_url}"` : "",
+					site_url ? `htmlUrl="${site_url}"` : ""
+				]
+					.filter(Boolean)
+					.join(" ");
+				return `\t\t<outline ${attributes} />`;
+			})
+			.filter(Boolean)
+			.join("\n");
+
+		const outline_block = outlines ? `${outlines}\n` : "";
+		return `<?xml version="1.0" encoding="UTF-8"?>\n` +
+			`<opml version="1.0">\n` +
+			`\t<head>\n` +
+			`\t\t<title>Inkwell Subscriptions</title>\n` +
+			`\t\t<dateCreated>${created_at}</dateCreated>\n` +
+			`\t</head>\n` +
+			`\t<body>\n` +
+			`${outline_block}` +
+			`\t</body>\n` +
+			`</opml>\n`;
 	}
 
 	setSubmitting(is_submitting) {
