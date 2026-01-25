@@ -41,8 +41,7 @@ export default class extends Controller {
 
     const payload = await fetchReadableContent(post.id);
 		const summary_fallback = post.summary || "No preview available yet.";
-		const safe_summary = this.escapeHtml(summary_fallback);
-		let safe_html = `<p>${safe_summary}</p>`;
+		let safe_html = this.sanitizeHtml(`<p>${summary_fallback}</p>`);
 		if (payload.html) {
 			safe_html = this.sanitizeHtml(payload.html);
 		}
@@ -262,23 +261,4 @@ export default class extends Controller {
 		return doc.body.innerHTML;
 	}
 
-	escapeHtml(value) {
-		const text = value || "";
-		return text.replace(/[&<>"']/g, (character) => {
-			switch (character) {
-				case "&":
-					return "&amp;";
-				case "<":
-					return "&lt;";
-				case ">":
-					return "&gt;";
-				case "\"":
-					return "&quot;";
-				case "'":
-					return "&#39;";
-				default:
-					return character;
-			}
-		});
-	}
 }
