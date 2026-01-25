@@ -159,9 +159,16 @@
 						<h2>Subscriptions</h2>
 						<div class="subscriptions-actions">
 							<button type="button" class="btn-sm" data-action="subscriptions#startNewFeed">New Feed...</button>
-							<button type="button" class="btn-sm">Import...</button>
+							<button type="button" class="btn-sm" data-subscriptions-target="importButton" data-action="subscriptions#importSubscriptions">Import...</button>
 							<button type="button" class="btn-sm" data-action="subscriptions#exportSubscriptions">Export</button>
 						</div>
+						<input
+							type="file"
+							accept=".opml,.xml,text/xml,application/xml"
+							data-subscriptions-target="importInput"
+							data-action="subscriptions#importFileSelected"
+							hidden
+						>
 					</header>
 					<div class="subscriptions-form" data-subscriptions-target="formWrapper" hidden>
 						<form data-action="subscriptions#subscribe">
@@ -182,6 +189,12 @@
 								<span class="subscriptions-status-text" data-subscriptions-target="status" hidden></span>
 							</div>
 						</form>
+					</div>
+					<div class="subscriptions-import" data-subscriptions-target="importStatus" hidden>
+						<div class="subscriptions-import-row">
+							<span class="subscriptions-import-text" data-subscriptions-target="importText" aria-live="polite"></span>
+							<progress max="0" value="0" data-subscriptions-target="importProgress"></progress>
+						</div>
 					</div>
 					<div class="subscriptions-list" data-subscriptions-target="list"></div>
 				</section>

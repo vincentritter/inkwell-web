@@ -16,15 +16,22 @@ export default class extends Controller {
 		"submit",
 		"spinner",
 		"status",
-		"readerView"
+		"readerView",
+		"importInput",
+		"importButton",
+		"importStatus",
+		"importProgress",
+		"importText"
 	];
 
 	connect() {
 		this.subscriptions = [];
 		this.is_loading = false;
 		this.is_submitting = false;
+		this.is_importing = false;
 		this.is_visible = false;
 		this.mode = "manage";
+		this.import_delay_ms = 250;
 		this.handleOpen = this.handleOpen.bind(this);
 		this.handleAuthReady = this.handleAuthReady.bind(this);
 		this.handlePostOpen = this.handlePostOpen.bind(this);
@@ -196,6 +203,172 @@ export default class extends Controller {
 		finally {
 			button.disabled = false;
 		}
+	}
+
+	importSubscriptions(event) {
+		event.preventDefault();
+		if (this.is_importing) {
+			return;
+		}
+		this.clearStatus();
+		this.importInputTarget.value = "";
+		this.importInputTarget.click();
+	}
+
+	async importFileSelected(event) {
+		const file = event.target.files?.[0];
+		if (!file) {
+			return;
+		}
+		await this.importOpmlFile(file);
+	}
+
+	async importOpmlFile(file) {
+		if (this.is_importing) {
+			return;
+		}
+
+		this.is_importing = true;
+		this.setImporting(true);
+		this.clearStatus();
+
+		try {
+			const file_text = await file.text();
+			const feed_urls = this.extractOpmlFeedUrls(file_text);
+			if (!Array.isArray(feed_urls) || feed_urls.length == 0) {
+				this.showStatus("No feeds found in the OPML file.");
+				return;
+			}
+
+			this.setImportProgress(0, feed_urls.length, 0);
+			const totals = await this.importFeedUrls(feed_urls);
+			await this.loadSubscriptions();
+
+			if (totals.failed_count == 0) {
+				this.showStatus(`Imported ${totals.imported_count} feeds.`);
+			}
+			else {
+				const success_count = totals.imported_count - totals.failed_count;
+				this.showStatus(`Imported ${success_count} feeds. ${totals.failed_count} failed.`);
+			}
+		}
+		catch (error) {
+			console.warn("Failed to import OPML", error);
+			this.showStatus("Unable to import OPML file.");
+		}
+		finally {
+			this.setImporting(false);
+		}
+	}
+
+	async importFeedUrls(feed_urls) {
+		let imported_count = 0;
+		let failed_count = 0;
+
+		for (const feed_url of feed_urls) {
+			try {
+				const payload = await createFeedSubscription(feed_url);
+				if (Array.isArray(payload)) {
+					throw new Error("Multiple feeds found");
+				}
+			}
+			catch (error) {
+				failed_count += 1;
+			}
+			imported_count += 1;
+			this.setImportProgress(imported_count, feed_urls.length, failed_count);
+			await this.delay(this.import_delay_ms);
+		}
+
+		return { imported_count, failed_count };
+	}
+
+	extractOpmlFeedUrls(opml_text) {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(opml_text, "text/xml");
+		const parser_error = doc.querySelector("parsererror");
+		if (parser_error) {
+			throw new Error("Invalid OPML");
+		}
+
+		const outlines = Array.from(doc.querySelectorAll("outline"));
+		const feed_urls = outlines
+			.map((outline) => {
+				const xml_url = this.getOutlineAttribute(outline, ["xmlUrl", "xmlurl", "xmlURL"]);
+				const html_url = this.getOutlineAttribute(outline, ["htmlUrl", "htmlurl", "htmlURL"]);
+				return xml_url || html_url || "";
+			})
+			.filter((url) => url);
+
+		return this.uniqueUrls(feed_urls);
+	}
+
+	getOutlineAttribute(outline, names) {
+		if (!outline || !Array.isArray(names)) {
+			return "";
+		}
+		for (const name of names) {
+			const value = outline.getAttribute(name);
+			if (value && value.trim()) {
+				return value.trim();
+			}
+		}
+		return "";
+	}
+
+	uniqueUrls(urls) {
+		const seen = new Set();
+		const unique_urls = [];
+		(urls || []).forEach((url) => {
+			const trimmed = (url || "").trim();
+			if (!trimmed) {
+				return;
+			}
+			const key = trimmed.toLowerCase();
+			if (seen.has(key)) {
+				return;
+			}
+			seen.add(key);
+			unique_urls.push(trimmed);
+		});
+		return unique_urls;
+	}
+
+	setImporting(is_importing) {
+		this.is_importing = is_importing;
+		this.importStatusTarget.hidden = !is_importing;
+		this.importButtonTarget.disabled = is_importing;
+		this.importInputTarget.disabled = is_importing;
+		if (!is_importing) {
+			this.setImportProgress(0, 0, 0);
+		}
+	}
+
+	setImportProgress(completed, total, failed) {
+		const safe_completed = Math.min(Number(completed) || 0, Number(total) || 0);
+		const safe_total = Math.max(Number(total) || 0, 0);
+		const failed_count = Math.max(Number(failed) || 0, 0);
+
+		this.importProgressTarget.max = safe_total;
+		this.importProgressTarget.value = safe_completed;
+
+		if (safe_total == 0) {
+			this.importTextTarget.textContent = "";
+			return;
+		}
+
+		const feed_label = (safe_total == 1) ? "feed" : "feeds";
+		let message = `Importing ${safe_total} ${feed_label}`;
+		if (failed_count > 0) {
+			message += ` (${failed_count} failed)`;
+		}
+		this.importTextTarget.textContent = message;
+	}
+
+	delay(duration_ms) {
+		return new Promise((resolve) => {
+			setTimeout(resolve, duration_ms);
+		});
 	}
 
 	exportSubscriptions(event) {

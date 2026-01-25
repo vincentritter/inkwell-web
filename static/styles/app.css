@@ -684,6 +684,31 @@ button:focus:not(:focus-visible) {
 	font-size: 0.8rem;
 }
 
+.subscriptions-import {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.subscriptions-import-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-height: 1.2rem;
+}
+
+.subscriptions-import progress {
+	flex: 1;
+	min-width: 160px;
+	margin-bottom: 0;
+}
+
+.subscriptions-import-text {
+	color: var(--ink-muted);
+	font-size: 0.7rem;
+	white-space: nowrap;
+}
+
 .subscriptions-spinner {
 	width: 16px;
 	height: 16px;
