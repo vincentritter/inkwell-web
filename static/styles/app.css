@@ -861,6 +861,21 @@ button:focus:not(:focus-visible) {
   align-items: center;
   gap: 0.5rem;
   white-space: nowrap;
+  border-right: none;
+}
+
+.reader-tabs button + button {
+  border-left: 1px solid #d8d8d8;
+}
+
+.reader-tabs.is-single button[aria-pressed="true"] {
+  background: transparent;
+  color: var(--ink-ink);
+}
+
+.reader-tabs.is-single {
+  border: none;
+  /* background: transparent; */
 }
 
 .reader-avatar {

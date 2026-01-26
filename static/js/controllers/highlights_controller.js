@@ -2,7 +2,7 @@ import { Controller } from "../stimulus.js";
 import { deleteHighlight, getHighlightsForPost } from "../storage/highlights.js";
 
 export default class extends Controller {
-  static targets = ["readerPane", "highlightsPane", "list", "toggle", "readerTab"];
+  static targets = ["readerPane", "highlightsPane", "list", "toggle", "readerTab", "tabs"];
 
   connect() {
     this.activePostId = null;
@@ -57,7 +57,8 @@ export default class extends Controller {
     const count = this.highlights.length;
     const label = `${count} highlight${count === 1 ? "" : "s"}`;
     this.toggleTarget.textContent = label;
-    this.toggleTarget.hidden = count === 0;
+    this.toggleTarget.hidden = count == 0;
+    this.tabsTarget.classList.toggle("is-single", count == 0);
 
     if (!count) {
       this.listTarget.innerHTML = "<p class=\"highlights-empty\">No highlights yet.</p>";
