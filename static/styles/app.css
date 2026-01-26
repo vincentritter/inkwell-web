@@ -13,10 +13,11 @@
   --pico-border-radius: 7px;
   --pico-form-element-spacing-vertical: 0.5rem;
   --pico-form-element-spacing-horizontal: 0.75rem;
-  --pico-primary: #2f4f3f;
-  --pico-primary-hover: #243c30;
-  --pico-primary-focus: rgba(47, 79, 63, 0.2);
+  --pico-primary: #3e5b7a;
+  --pico-primary-hover: #344961;
+  --pico-primary-focus: rgba(62, 91, 122, 0.2);
   --pico-contrast: #1d1a16;
+  --pico-background-color: #355C7D;
 }
 
 body {
@@ -439,8 +440,9 @@ button:focus:not(:focus-visible) {
 } */
 
 .timeline-item.is-active {
-  background: color-mix(in srgb, var(--row-color, #fff) 70%, #a9b8c9 30%);
-  border-color: var(--row-border, rgba(47, 79, 63, 0.4));
+	background: var(--row-selected-color, #2F2F2F);
+	border-color: var(--row-selected-border, #000000);
+	color: var(--row-selected-text, #FFFFFF);
   /* box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent); */
 }
 
@@ -449,6 +451,11 @@ button:focus:not(:focus-visible) {
   outline: none;
   border-color: var(--row-border, rgba(47, 79, 63, 0.4));
   /* box-shadow: 0 0 0 1px color-mix(in srgb, var(--row-border, rgba(47, 79, 63, 0.4)) 70%, transparent); */
+}
+
+.timeline-item.is-active:focus-visible,
+.timeline-item.is-active:active {
+	border-color: var(--row-selected-border, #000000);
 }
 
 .timeline-item.is-read {
@@ -482,6 +489,12 @@ button:focus:not(:focus-visible) {
   margin-bottom: 0.35rem;
 	overflow-wrap: anywhere;
 	word-break: break-word;
+}
+
+.timeline-item.is-active .timeline-title,
+.timeline-item.is-active .timeline-summary,
+.timeline-item.is-active .timeline-meta {
+	color: var(--row-selected-text, #FFFFFF);
 }
 
 .timeline-meta {

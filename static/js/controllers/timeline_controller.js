@@ -1,5 +1,5 @@
 import { Controller } from "../stimulus.js";
-import { timelineBorderColors, timelineCellColors } from "../colors.js";
+import { timelineBorderColors, timelineCellColors, timelineSelectedColors } from "../colors.js";
 import { fetchTimelineData } from "../api/posts.js";
 import { markFeedEntriesRead } from "../api/feeds.js";
 import { loadReadIds, markAllRead, markRead } from "../storage/reads.js";
@@ -551,6 +551,9 @@ export default class extends Controller {
 
     const color = timelineCellColors[post.age_bucket] || "#fff";
     const borderColor = timelineBorderColors[post.age_bucket] || "rgba(47, 79, 63, 0.4)";
+		const selected_background = timelineSelectedColors.background;
+		const selected_text = timelineSelectedColors.text;
+		const selected_border = timelineSelectedColors.border;
     const titleMarkup = hasTitle
       ? `<div class="timeline-title">${safe_title}</div>`
       : `<div class="timeline-title timeline-title--source">${safe_source}</div>`;
@@ -567,7 +570,7 @@ export default class extends Controller {
       `;
 
     return `
-      <button type="button" class="${classes}" data-post-id="${post.id}" data-age="${post.age_bucket}" style="--row-color: ${color}; --row-border: ${borderColor};">
+      <button type="button" class="${classes}" data-post-id="${post.id}" data-age="${post.age_bucket}" style="--row-color: ${color}; --row-border: ${borderColor}; --row-selected-color: ${selected_background}; --row-selected-text: ${selected_text}; --row-selected-border: ${selected_border};">
         <img class="avatar" src="${post.avatar_url}" alt="${safe_source}">
         <div>
           ${titleMarkup}

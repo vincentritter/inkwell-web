@@ -18,6 +18,12 @@ export const timelineBorderColors = {
 	"day-7": "#E3E7EE"
 };
 
+export const timelineSelectedColors = {
+	background: "#355C7D",
+	text: "#FFFFFF",
+	border: "#355C7D"
+};
+
 // export const timelineCellColors = {
 	// "day-1": "#CAD4E8",
 	// "day-2": "#CDD6EA",
