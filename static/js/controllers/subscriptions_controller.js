@@ -21,7 +21,9 @@ export default class extends Controller {
 		"importButton",
 		"importStatus",
 		"importProgress",
-		"importText"
+		"importText",
+		"failedSection",
+		"failedList"
 	];
 
 	connect() {
@@ -30,6 +32,8 @@ export default class extends Controller {
 		this.is_submitting = false;
 		this.is_importing = false;
 		this.is_visible = false;
+		this.failed_list_visible = false;
+		this.failed_imports_storage_key = "inkwell_failed_import_urls";
 		this.mode = "manage";
 		this.import_delay_ms = 250;
 		this.handleOpen = this.handleOpen.bind(this);
@@ -38,6 +42,8 @@ export default class extends Controller {
 		window.addEventListener("subscriptions:open", this.handleOpen);
 		window.addEventListener("auth:ready", this.handleAuthReady);
 		window.addEventListener("post:open", this.handlePostOpen);
+		this.resetImportStatus();
+		this.setImporting(this.is_importing);
 	}
 
 	disconnect() {
@@ -229,6 +235,7 @@ export default class extends Controller {
 		}
 
 		this.is_importing = true;
+		this.clearFailedImports();
 		this.setImporting(true);
 		this.clearStatus();
 
@@ -274,6 +281,7 @@ export default class extends Controller {
 			}
 			catch (error) {
 				failed_count += 1;
+				this.addFailedImportUrl(feed_url);
 			}
 			imported_count += 1;
 			this.setImportProgress(imported_count, feed_urls.length, failed_count);
@@ -336,12 +344,25 @@ export default class extends Controller {
 
 	setImporting(is_importing) {
 		this.is_importing = is_importing;
-		this.importStatusTarget.hidden = !is_importing;
+		const failed_urls = this.getFailedImportUrls();
+		const has_failed = Array.isArray(failed_urls) && failed_urls.length > 0;
+		this.importStatusTarget.hidden = !(is_importing || has_failed);
 		this.importButtonTarget.disabled = is_importing;
 		this.importInputTarget.disabled = is_importing;
 		if (!is_importing) {
-			this.setImportProgress(0, 0, 0);
+			if (has_failed) {
+				this.setImportFailedSummary(failed_urls.length);
+			}
+			else {
+				this.setImportProgress(0, 0, 0);
+			}
 		}
+	}
+
+	resetImportStatus() {
+		this.clearFailedImports();
+		this.setImportProgress(0, 0, 0);
+		this.importStatusTarget.hidden = true;
 	}
 
 	setImportProgress(completed, total, failed) {
@@ -360,9 +381,111 @@ export default class extends Controller {
 		const feed_label = (safe_total == 1) ? "feed" : "feeds";
 		let message = `Importing ${safe_total} ${feed_label}`;
 		if (failed_count > 0) {
-			message += ` (${failed_count} failed)`;
+			message += ` (<a href="#" data-action="subscriptions#toggleFailedImports">${failed_count} failed</a>)`;
+			this.importTextTarget.innerHTML = message;
+			return;
 		}
 		this.importTextTarget.textContent = message;
+	}
+
+	setImportFailedSummary(failed_count) {
+		const safe_failed = Math.max(Number(failed_count) || 0, 0);
+		if (safe_failed == 0) {
+			this.importProgressTarget.max = 0;
+			this.importProgressTarget.value = 0;
+			this.importTextTarget.textContent = "";
+			return;
+		}
+
+		this.importProgressTarget.max = safe_failed;
+		this.importProgressTarget.value = safe_failed;
+		this.importTextTarget.innerHTML = `Last import (<a href="#" data-action="subscriptions#toggleFailedImports">${safe_failed} failed</a>)`;
+	}
+
+	toggleFailedImports(event) {
+		event.preventDefault();
+		this.setFailedImportsVisible(!this.failed_list_visible);
+	}
+
+	setFailedImportsVisible(is_visible) {
+		this.failed_list_visible = is_visible;
+		const has_failed = this.failedListTarget.childElementCount > 0;
+		this.failedSectionTarget.hidden = !(is_visible && has_failed);
+	}
+
+	getFailedImportUrls() {
+		try {
+			const stored = localStorage.getItem(this.failed_imports_storage_key);
+			if (!stored) {
+				return [];
+			}
+			const parsed = JSON.parse(stored);
+			if (!Array.isArray(parsed)) {
+				return [];
+			}
+			return parsed
+				.map((url) => (url || "").trim())
+				.filter((url) => url);
+		}
+		catch (error) {
+			return [];
+		}
+	}
+
+	setFailedImportUrls(urls) {
+		const cleaned = this.uniqueUrls(urls);
+		try {
+			if (cleaned.length == 0) {
+				localStorage.removeItem(this.failed_imports_storage_key);
+			}
+			else {
+				localStorage.setItem(this.failed_imports_storage_key, JSON.stringify(cleaned));
+			}
+		}
+		catch (error) {
+			// Ignore storage errors.
+		}
+		return cleaned;
+	}
+
+	clearFailedImports() {
+		this.setFailedImportUrls([]);
+		this.failed_list_visible = false;
+		this.renderFailedImports([]);
+	}
+
+	addFailedImportUrl(url) {
+		const current = this.getFailedImportUrls();
+		current.push(url);
+		const updated = this.setFailedImportUrls(current);
+		this.renderFailedImports(updated);
+	}
+
+	renderFailedImports(failed_urls) {
+		if (!Array.isArray(failed_urls) || failed_urls.length == 0) {
+			this.failedListTarget.innerHTML = "";
+			this.failedSectionTarget.hidden = true;
+			return;
+		}
+
+		const items = failed_urls
+			.map((url) => {
+				const title = this.getDomainName(url) || url;
+				const safe_title = this.escapeHtml(title);
+				const safe_url = this.escapeHtml(url);
+				return `
+					<div class="subscription-item">
+						<div class="subscription-info">
+							<p class="subscription-title">${safe_title}</p>
+							<p class="subscription-url"><a href="${safe_url}">${safe_url}</a></p>
+						</div>
+					</div>
+				`;
+			})
+			.join("");
+
+		this.failedListTarget.innerHTML = items;
+		this.failedSectionTarget.hidden = !this.failed_list_visible;
 	}
 
 	delay(duration_ms) {
@@ -539,6 +662,22 @@ export default class extends Controller {
 	isReaderEmpty() {
 		const content = this.readerViewTarget.querySelector("[data-reader-target=\"content\"]");
 		return !content?.dataset.postId;
+	}
+
+	getDomainName(url) {
+		if (!url || typeof url !== "string") {
+			return "";
+		}
+		const trimmed = url.trim();
+		if (!trimmed) {
+			return "";
+		}
+		try {
+			return new URL(trimmed).hostname || trimmed;
+		}
+		catch (error) {
+			return trimmed;
+		}
 	}
 
 	escapeHtml(value) {

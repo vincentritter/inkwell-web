@@ -1,5 +1,5 @@
 .reader-content {
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.8;
   color: #2a241f;
   margin-bottom: 0;
@@ -95,6 +95,7 @@
 }
 
 .highlight-text {
+  font-size: 0.9rem;
   display: inline-block;
   background: #FFF9D6;
   padding: 0 0.15em;
