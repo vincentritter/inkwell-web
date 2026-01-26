@@ -55,37 +55,37 @@ export default class extends Controller {
     this.dispatch("ready", { detail: { postId: post.id }, prefix: "reader" });
   }
 
-  showPlaceholder() {
-    this.element.classList.add("is-empty");
-    this.currentPostId = null;
-    this.currentPostRead = false;
-    this.markUnreadTarget.disabled = true;
-    this.updateReadButton();
-    this.avatarTarget.hidden = true;
-    this.avatarTarget.src = "/images/blank_avatar.png";
-    this.avatarTarget.alt = "";
-    this.setTitle("Select a post");
-    this.metaTarget.textContent = "";
-    this.contentTarget.dataset.postTitle = "";
-    this.contentTarget.innerHTML = `
-      <div class="reader-welcome">
-        <p class="reader-welcome-eyebrow">Welcome to Inkwell</p>
-        <p>Select a post to start reading.</p>
-        <p>Make highlights to remember passages later or to blog quotes from them.</p>
-        <p>Keyboard shortcuts:</p>
-        <ul class="reader-welcome-tips">
-          <li><code>1, 2, 3</code> — switch tabs</li>
-          <li><code>/</code> — search posts</li>
-          <li><code>u</code> — toggle read status</li>
+	showPlaceholder() {
+		this.element.classList.add("is-empty");
+		this.currentPostId = null;
+		this.currentPostRead = false;
+		this.markUnreadTarget.disabled = true;
+		this.updateReadButton();
+		this.avatarTarget.hidden = true;
+		this.avatarTarget.src = "/images/blank_avatar.png";
+		this.avatarTarget.alt = "";
+		this.setTitle("Select a post");
+		this.metaTarget.textContent = "";
+		this.contentTarget.dataset.postTitle = "";
+		this.contentTarget.innerHTML = `
+			<div class="reader-welcome">
+				<p class="reader-welcome-eyebrow">Welcome to Inkwell</p>
+				<p>Select a post to start reading.</p>
+				<p>Make highlights to remember passages later or to blog quotes from them.</p>
+				<p>Keyboard shortcuts:</p>
+				<ul class="reader-welcome-tips">
+					<li><code>1, 2, 3</code> — switch tabs</li>
+					<li><code>/</code> — search posts</li>
+					<li><code>u</code> — toggle read status</li>
 					<li><code>h</code> — toggle hiding read posts</li>
-                    <li><code>b</code> — bookmark</li>
+					<li><code>b</code> — bookmark</li>
 					<li><code>r</code> — refresh</li>
-        </ul>
-        <p>What is the <code>Fading</code> tab? Posts older than a few days are collected here. After a week, they are automatically archived, so your unread posts never get out of control.</p>
-      </div>
-    `;
+				</ul>
+				<p>What is the <code>Fading</code> tab? Posts older than a few days are collected here. After a week, they are automatically archived, so your unread posts never get out of control.</p>
+			</div>
+		`;
 		this.preloadWelcomeBackground();
-  }
+    }
 
 	preloadWelcomeBackground() {
 		if (this.welcomeBackgroundLoading || this.welcomeBackgroundLoaded) {
