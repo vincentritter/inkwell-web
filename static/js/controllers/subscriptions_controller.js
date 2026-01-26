@@ -552,7 +552,7 @@ export default class extends Controller {
 	}
 
 	renderLoading() {
-		this.listTarget.innerHTML = "<p class=\"subscriptions-empty\">Loading subscriptions...</p>";
+		this.listTarget.innerHTML = "<p class=\"subscriptions-empty\"><img class=\"subscriptions-spinner\" src=\"/images/progress_spinner.svg\" alt=\"Loading subscriptions\"></p>";
 	}
 
 	render() {

@@ -656,7 +656,7 @@ button:focus:not(:focus-visible) {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
-	margin-top: var(--pico-spacing);
+    margin-top: 1.5rem;
 }
 
 .subscriptions-form-row {
@@ -747,8 +747,8 @@ button:focus:not(:focus-visible) {
 }
 
 .subscriptions-spinner {
-	width: 16px;
-	height: 16px;
+	width: 24px;
+	height: 24px;
 }
 
 .subscriptions-failed {
@@ -840,7 +840,7 @@ button:focus:not(:focus-visible) {
 .reader-meta {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .reader-meta a {
