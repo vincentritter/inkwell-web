@@ -205,6 +205,10 @@ export async function fetchFeedUnreadEntryIds() {
   return fetchFeedsJson("/feeds/unread_entries.json");
 }
 
+export async function fetchFeedStarredEntryIds() {
+	return fetchFeedsJson("/feeds/starred_entries.json");
+}
+
 export async function fetchFeedIcons() {
   return fetchFeedsJson("/feeds/icons.json");
 }
@@ -247,6 +251,46 @@ export async function markFeedEntriesUnread(entryIds) {
     },
     body: JSON.stringify({ unread_entries: unreadEntries })
   });
+}
+
+export async function starFeedEntries(entryIds) {
+	const ids = Array.isArray(entryIds) ? entryIds.filter(Boolean).map(String) : [];
+	if (ids.length === 0) {
+		return [];
+	}
+
+	const starred_entries = ids.map((id) => {
+		const numeric_id = Number(id);
+		return Number.isNaN(numeric_id) ? id : numeric_id;
+	});
+  
+	return fetchFeedsJson("/feeds/starred_entries.json", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({ starred_entries })
+	});
+}
+
+export async function unstarFeedEntries(entryIds) {
+	const ids = Array.isArray(entryIds) ? entryIds.filter(Boolean).map(String) : [];
+	if (ids.length === 0) {
+		return [];
+	}
+
+	const starred_entries = ids.map((id) => {
+		const numeric_id = Number(id);
+		return Number.isNaN(numeric_id) ? id : numeric_id;
+	});
+
+	return fetchFeedsJson("/feeds/starred_entries.json", {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({ starred_entries })
+	});
 }
 
 async function fetchFeedsJson(path, options = {}) {

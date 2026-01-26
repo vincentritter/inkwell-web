@@ -1,7 +1,7 @@
 import { Controller } from "../stimulus.js";
 import { timelineBorderColors, timelineCellColors, timelineSelectedColors } from "../colors.js";
 import { fetchTimelineData } from "../api/posts.js";
-import { markFeedEntriesRead } from "../api/feeds.js";
+import { markFeedEntriesRead, starFeedEntries, unstarFeedEntries } from "../api/feeds.js";
 import { loadReadIds, markAllRead, markRead } from "../storage/reads.js";
 
 const SEGMENT_BUCKETS = {
@@ -26,6 +26,7 @@ export default class extends Controller {
 		this.searchQuery = "";
     this.readIds = new Set();
     this.pendingReadIds = new Set();
+		this.bookmark_toggling = new Set();
 		this.readSyncTimer = null;
 		this.hideRead = this.loadHideReadSetting();
 		this.hideReadSnapshotIds = new Set();
@@ -257,6 +258,10 @@ export default class extends Controller {
         event.preventDefault();
         this.syncTimeline();
         break;
+			case "b":
+				event.preventDefault();
+				this.toggleBookmark();
+				break;
 			case "Enter":
 				if (this.isSearchFocused() || !this.activePostId) {
 					break;
@@ -312,6 +317,43 @@ export default class extends Controller {
 		}
 
 		window.location.href = post_url;
+	}
+
+	async toggleBookmark() {
+		if (!this.activePostId) {
+			return;
+		}
+
+		const post = this.posts.find((entry) => entry.id === this.activePostId);
+		if (!post) {
+			return;
+		}
+
+		if (this.bookmark_toggling.has(post.id)) {
+			return;
+		}
+
+		const should_bookmark = !post.is_bookmarked;
+		this.bookmark_toggling.add(post.id);
+		post.is_bookmarked = should_bookmark;
+		this.render();
+
+		try {
+			if (should_bookmark) {
+				await starFeedEntries([post.id]);
+			}
+			else {
+				await unstarFeedEntries([post.id]);
+			}
+		}
+		catch (error) {
+			console.warn("Failed to toggle bookmark", error);
+			post.is_bookmarked = !should_bookmark;
+			this.render();
+		}
+		finally {
+			this.bookmark_toggling.delete(post.id);
+		}
 	}
 
 	isSearchFocused() {
@@ -539,6 +581,15 @@ export default class extends Controller {
       ? this.formatTime(post.published_at)
       : this.formatDate(post.published_at);
     const status = post.is_archived ? "<span class=\"status-chip\">Archived</span>" : "";
+		const bookmark_status = post.is_bookmarked
+			? "<span class=\"timeline-bookmark\"><span class=\"timeline-bookmark-icon\" aria-hidden=\"true\">&#9733;</span>Bookmarked</span>"
+			: "";
+		const date_markup = `
+			<span class="timeline-date-row">
+				<span class="timeline-date">${formattedDate}</span>
+				${bookmark_status}
+			</span>
+		`;
     const showReadState = post.is_read && post.id !== this.activePostId;
     const classes = [
       "timeline-item",
@@ -562,11 +613,11 @@ export default class extends Controller {
       ? `
         <span>${safe_source}</span>
         ${status}
-        <span class="timeline-date">${formattedDate}</span>
+        ${date_markup}
       `
       : `
         ${status}
-        <span class="timeline-date">${formattedDate}</span>
+        ${date_markup}
       `;
 
     return `

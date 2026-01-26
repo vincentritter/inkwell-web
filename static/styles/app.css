@@ -506,7 +506,7 @@ button:focus:not(:focus-visible) {
 }
 
 .timeline-meta--compact {
-  font-size: 0.65rem;
+	font-size: 0.75rem;
 }
 
 .timeline-summary {
@@ -529,6 +529,25 @@ button:focus:not(:focus-visible) {
 
 .timeline-meta .timeline-date {
   flex-basis: 100%;
+}
+
+.timeline-date-row {
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+	flex-basis: 100%;
+}
+
+.timeline-date-row .timeline-date {
+	flex-basis: auto;
+}
+
+.timeline-bookmark {
+	font-size: 0.65rem;
+}
+
+.timeline-bookmark-icon {
+	font-size: 0.9em;
 }
 
 .status-chip {

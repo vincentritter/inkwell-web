@@ -5,18 +5,20 @@ import {
   fetchFeedEntries,
   fetchFeedIcons,
   fetchFeedSubscriptions,
-  fetchFeedUnreadEntryIds
+  fetchFeedUnreadEntryIds,
+	fetchFeedStarredEntryIds
 } from "./feeds.js";
 
 const DEFAULT_AVATAR_URL = "/images/blank_avatar.png";
 
 export async function fetchTimelineData() {
   try {
-    const [subscriptions, entries, unreadEntryIds, icons] = await Promise.all([
+    const [subscriptions, entries, unreadEntryIds, icons, starred_entry_ids] = await Promise.all([
       fetchFeedSubscriptions(),
       fetchFeedEntries(),
       fetchFeedUnreadEntryIds(),
-      fetchFeedIcons()
+      fetchFeedIcons(),
+			fetchFeedStarredEntryIds()
     ]);
 
     cacheFeedEntries(entries);
@@ -31,6 +33,9 @@ export async function fetchTimelineData() {
         ? icons.map((icon) => [icon.host, icon.url]).filter(([host, url]) => host && url)
         : []
     );
+		const starred_set = new Set(
+			Array.isArray(starred_entry_ids) ? starred_entry_ids.map((id) => String(id)) : []
+		);
 
     const posts = entries.map((entry) => {
       const subscription = subscriptionMap.get(entry.feed_id);
@@ -45,6 +50,7 @@ export async function fetchTimelineData() {
         avatar_url: resolveAvatar(subscription, iconMap),
         published_at: publishedAt,
         is_read: !unreadSet.has(String(entry.id)),
+				is_bookmarked: starred_set.has(String(entry.id)),
         is_archived: false,
         age_bucket: getAgeBucket(publishedAt)
       };
