@@ -109,18 +109,23 @@ export default class extends Controller {
       return;
     }
 
-    try {
-      if (this.currentPostRead) {
-        await markUnread(this.currentPostId);
-        await markFeedEntriesUnread([this.currentPostId]);
-      }
-      else {
-        await markRead(this.currentPostId);
-      }
-    }
-    catch (error) {
-      console.warn("Failed to toggle read state", error);
-    }
+		this.setReadButtonPressed(true);
+
+		try {
+			if (this.currentPostRead) {
+				await markUnread(this.currentPostId);
+				await markFeedEntriesUnread([this.currentPostId]);
+			}
+			else {
+				await markRead(this.currentPostId);
+			}
+		}
+		catch (error) {
+			console.warn("Failed to toggle read state", error);
+		}
+		finally {
+			this.setReadButtonPressed(false);
+		}
 
     this.currentPostRead = !this.currentPostRead;
     this.updateReadButton();
@@ -164,6 +169,14 @@ export default class extends Controller {
 
     this.markUnreadTarget.textContent = this.currentPostRead ? "Mark Unread" : "Mark Read";
   }
+
+	setReadButtonPressed(pressed) {
+		if (!this.markUnreadTarget) {
+			return;
+		}
+
+		this.markUnreadTarget.classList.toggle("is-pressed", pressed);
+	}
 
   setTitle(title) {
     const trimmed = title ? title.trim() : "";
