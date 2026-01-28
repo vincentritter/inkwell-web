@@ -17,6 +17,8 @@ const SEGMENT_BUCKETS = {
 };
 const HIDE_READ_KEY = "inkwell_hide_read";
 const SUMMARY_TRUNCATE_LENGTH = 35;
+const FEED_REFRESH_INTERVAL_MINUTES = 5;
+const FEED_REFRESH_INTERVAL_MS = FEED_REFRESH_INTERVAL_MINUTES * 60 * 1000;
 
 export default class extends Controller {
   static targets = ["list", "segments", "search", "searchToggle", "searchInput"];
@@ -37,6 +39,7 @@ export default class extends Controller {
     this.pendingReadIds = new Set();
 		this.bookmark_toggling = new Set();
 		this.readSyncTimer = null;
+		this.refreshTimer = null;
 		this.hideRead = this.loadHideReadSetting();
 		this.hideReadSnapshotIds = new Set();
 		this.hideReadSnapshotActive = false;
@@ -60,6 +63,7 @@ export default class extends Controller {
 		window.addEventListener("timeline:sync", this.handleTimelineSync);
     this.listTarget.classList.add("is-loading");
     this.load();
+		this.startRefreshTimer();
   }
 
   disconnect() {
@@ -73,6 +77,7 @@ export default class extends Controller {
 		window.removeEventListener("auth:ready", this.handleAuthReady);
 		window.removeEventListener("timeline:sync", this.handleTimelineSync);
     this.clearReadSyncTimer();
+		this.stopRefreshTimer();
   }
 
   async load() {
@@ -125,6 +130,21 @@ export default class extends Controller {
 
 	handleTimelineSync(event) {
 		this.syncTimeline();
+	}
+
+	startRefreshTimer() {
+		this.stopRefreshTimer();
+		this.refreshTimer = setInterval(() => {
+			this.syncTimeline();
+		}, FEED_REFRESH_INTERVAL_MS);
+	}
+
+	stopRefreshTimer() {
+		if (!this.refreshTimer) {
+			return;
+		}
+		clearInterval(this.refreshTimer);
+		this.refreshTimer = null;
 	}
 
 	scheduleTimelineExtras(load_token) {
