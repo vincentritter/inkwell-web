@@ -1171,4 +1171,20 @@ input[type="search"]::-webkit-search-decoration {
 		min-height: 64px;
 		max-height: 64px;
 	}
+
+	.sidebar-header .segments {
+		max-width: 250px;
+		justify-self: center;
+		width: 100%;
+	}
+
+	.search-field {
+		height: 32px;
+		padding: 0.1rem 0.3rem;
+	}
+
+	.search-field input[type="search"] {
+		font-size: 0.65rem;
+		padding: 0.1rem 0.35rem 0.1rem 0.1rem;
+	}
 }
