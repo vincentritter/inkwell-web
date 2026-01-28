@@ -198,6 +198,7 @@ export default class extends Controller {
 			}
 			this.inputTarget.value = "";
 			await this.loadSubscriptions();
+			this.dispatchTimelineSync();
 			this.showStatus("Subscription added.");
 		}
 		catch (error) {
@@ -383,6 +384,7 @@ export default class extends Controller {
 			this.setImportProgress(0, feed_urls.length, 0);
 			const totals = await this.importFeedUrls(feed_urls);
 			await this.loadSubscriptions();
+			this.dispatchTimelineSync();
 			if (this.cancel_import) {
 				return;
 			}
@@ -823,6 +825,10 @@ export default class extends Controller {
 		this.spinnerTarget.hidden = !is_submitting;
 		this.inputTarget.disabled = is_submitting;
 		this.submitTarget.disabled = is_submitting;
+	}
+
+	dispatchTimelineSync() {
+		window.dispatchEvent(new CustomEvent("timeline:sync"));
 	}
 
 	showStatus(message) {

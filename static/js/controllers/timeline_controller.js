@@ -27,9 +27,10 @@ export default class extends Controller {
 		this.unreadOverridePostId = null;
     this.posts = [];
     this.isLoading = true;
-    this.isSyncing = false;
+		this.isSyncing = false;
 		this.timeline_load_token = 0;
 		this.subscriptionCount = null;
+		this.pending_sync = false;
     this.searchActive = false;
 		this.searchQuery = "";
     this.readIds = new Set();
@@ -47,6 +48,7 @@ export default class extends Controller {
 		this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
 		this.handleToggleBookmark = this.handleToggleBookmark.bind(this);
 		this.handleAuthReady = this.handleAuthReady.bind(this);
+		this.handleTimelineSync = this.handleTimelineSync.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
 		this.searchInputTarget.addEventListener("keydown", this.handleSearchKeydown);
     window.addEventListener("post:unread", this.handleUnread);
@@ -55,6 +57,7 @@ export default class extends Controller {
 		window.addEventListener("timeline:markAllRead", this.handleMarkAllRead);
 		window.addEventListener("timeline:toggleBookmark", this.handleToggleBookmark);
 		window.addEventListener("auth:ready", this.handleAuthReady);
+		window.addEventListener("timeline:sync", this.handleTimelineSync);
     this.listTarget.classList.add("is-loading");
     this.load();
   }
@@ -68,6 +71,7 @@ export default class extends Controller {
 		window.removeEventListener("timeline:markAllRead", this.handleMarkAllRead);
 		window.removeEventListener("timeline:toggleBookmark", this.handleToggleBookmark);
 		window.removeEventListener("auth:ready", this.handleAuthReady);
+		window.removeEventListener("timeline:sync", this.handleTimelineSync);
     this.clearReadSyncTimer();
   }
 
@@ -104,12 +108,24 @@ export default class extends Controller {
       this.listTarget.classList.remove("is-loading");
       this.render();
       this.setSyncing(false);
+			if (this.pending_sync) {
+				this.pending_sync = false;
+				this.load();
+			}
     }
   }
 
   syncTimeline() {
+		if (this.isSyncing) {
+			this.pending_sync = true;
+			return;
+		}
     this.load();
   }
+
+	handleTimelineSync(event) {
+		this.syncTimeline();
+	}
 
 	scheduleTimelineExtras(load_token) {
 		if (!this.posts.length) {
