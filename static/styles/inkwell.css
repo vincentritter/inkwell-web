@@ -252,7 +252,7 @@ button:focus:not(:focus-visible) {
 }
 
 .reader-menu-button {
-	border: 1px solid #DDD;
+	border: none;
 	background: #f8f8f8;
 	color: var(--ink-muted);
 	width: 32px;
@@ -270,6 +270,13 @@ button:focus:not(:focus-visible) {
 
 .reader-menu-button:hover {
 	color: var(--ink-ink);
+}
+
+.reader-menu-icon {
+	width: 18px;
+	height: 18px;
+	display: block;
+	fill: currentColor;
 }
 
 .user-menu-item {
