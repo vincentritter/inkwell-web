@@ -47,6 +47,11 @@ export default class extends Controller {
 		);
 	}
 
+	openHelp() {
+		window.dispatchEvent(new CustomEvent("reader:welcome"));
+		window.dispatchEvent(new CustomEvent("subscriptions:close"));
+	}
+
   handleDocumentClick(event) {
     if (this.element.contains(event.target)) {
       return;

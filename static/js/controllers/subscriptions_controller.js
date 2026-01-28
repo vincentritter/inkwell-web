@@ -39,9 +39,11 @@ export default class extends Controller {
 		this.mode = "manage";
 		this.import_delay_ms = 250;
 		this.handleOpen = this.handleOpen.bind(this);
+		this.handleClose = this.handleClose.bind(this);
 		this.handleAuthReady = this.handleAuthReady.bind(this);
 		this.handlePostOpen = this.handlePostOpen.bind(this);
 		window.addEventListener("subscriptions:open", this.handleOpen);
+		window.addEventListener("subscriptions:close", this.handleClose);
 		window.addEventListener("auth:ready", this.handleAuthReady);
 		window.addEventListener("post:open", this.handlePostOpen);
 		this.resetImportStatus();
@@ -50,6 +52,7 @@ export default class extends Controller {
 
 	disconnect() {
 		window.removeEventListener("subscriptions:open", this.handleOpen);
+		window.removeEventListener("subscriptions:close", this.handleClose);
 		window.removeEventListener("auth:ready", this.handleAuthReady);
 		window.removeEventListener("post:open", this.handlePostOpen);
 	}
@@ -73,6 +76,10 @@ export default class extends Controller {
 				this.inputTarget.focus();
 			});
 		}
+	}
+
+	handleClose() {
+		this.hidePane();
 	}
 
 	startNewFeed(event) {

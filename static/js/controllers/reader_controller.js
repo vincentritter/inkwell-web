@@ -8,14 +8,17 @@ export default class extends Controller {
 
   connect() {
     this.handlePostOpen = this.handlePostOpen.bind(this);
+		this.handleWelcome = this.handleWelcome.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
     window.addEventListener("post:open", this.handlePostOpen);
+		window.addEventListener("reader:welcome", this.handleWelcome);
     window.addEventListener("keydown", this.handleKeydown);
     this.showPlaceholder();
   }
 
   disconnect() {
     window.removeEventListener("post:open", this.handlePostOpen);
+		window.removeEventListener("reader:welcome", this.handleWelcome);
     window.removeEventListener("keydown", this.handleKeydown);
   }
 
@@ -55,6 +58,10 @@ export default class extends Controller {
     this.dispatch("ready", { detail: { postId: post.id }, prefix: "reader" });
   }
 
+	handleWelcome() {
+		this.showPlaceholder();
+	}
+
 	showPlaceholder() {
 		this.element.classList.add("is-empty");
 		this.currentPostId = null;
@@ -66,6 +73,8 @@ export default class extends Controller {
 		this.avatarTarget.alt = "";
 		this.setTitle("Select a post");
 		this.metaTarget.textContent = "";
+		this.contentTarget.dataset.postId = "";
+		this.contentTarget.dataset.postUrl = "";
 		this.contentTarget.dataset.postTitle = "";
 		this.contentTarget.innerHTML = `
 			<div class="reader-welcome">
@@ -82,6 +91,7 @@ export default class extends Controller {
 					<li><code>r</code> — refresh</li>
 				</ul>
 				<p>What is the <code>Fading</code> tab? Posts older than a few days are collected here. After a week, they are automatically archived, so your unread posts never get out of control.</p>
+            	<p>Need help? Email <a href="mailto:help@micro.blog">help@micro.blog</a>.</p>
 			</div>
 		`;
 		this.preloadWelcomeBackground();
