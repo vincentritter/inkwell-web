@@ -24,6 +24,7 @@ export default class extends Controller {
   connect() {
     this.activeSegment = "today";
     this.activePostId = null;
+		this.unreadOverridePostId = null;
     this.posts = [];
     this.isLoading = true;
     this.isSyncing = false;
@@ -321,6 +322,7 @@ export default class extends Controller {
 		}
 
 		this.activePostId = null;
+		this.unreadOverridePostId = null;
 		this.render();
 	}
 
@@ -338,6 +340,9 @@ export default class extends Controller {
     post.is_read = false;
     this.readIds.delete(postId);
 		this.hideReadSnapshotIds.delete(postId);
+		if (postId == this.activePostId) {
+			this.unreadOverridePostId = postId;
+		}
     this.render();
   }
 
@@ -354,6 +359,9 @@ export default class extends Controller {
 
     post.is_read = true;
     this.readIds.add(postId);
+		if (postId == this.unreadOverridePostId) {
+			this.unreadOverridePostId = null;
+		}
     this.queueRead(postId);
     this.scheduleReadSync();
     this.render();
@@ -613,6 +621,9 @@ export default class extends Controller {
       this.persistRead(post.id);
     }
     const selectionChanged = post.id !== this.activePostId;
+		if (selectionChanged) {
+			this.unreadOverridePostId = null;
+		}
     this.activePostId = post.id;
     this.render();
     if (selectionChanged) {
@@ -746,13 +757,14 @@ export default class extends Controller {
 				${bookmark_status}
 			</span>
 		`;
-    const showReadState = post.is_read && post.id !== this.activePostId;
-    const classes = [
-      "timeline-item",
-      showReadState ? "is-read" : "",
-      post.is_archived ? "is-archived" : "",
-      post.id === this.activePostId ? "is-active" : ""
-    ]
+		const is_active = post.id == this.activePostId && post.id != this.unreadOverridePostId;
+		const show_read_state = post.is_read && !is_active;
+		const classes = [
+			"timeline-item",
+			show_read_state ? "is-read" : "",
+			post.is_archived ? "is-archived" : "",
+			is_active ? "is-active" : ""
+		]
       .filter(Boolean)
       .join(" ");
 
