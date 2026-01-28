@@ -42,9 +42,6 @@
                     <a class="user-menu-item" href="https://micro.blog" data-action="user-menu#close">
                       Go to Micro.blog
                     </a>
-                    <button type="button" class="user-menu-item" data-action="user-menu#markAllRead user-menu#close">
-                      Mark All as Read
-                    </button>
 					<button type="button" class="user-menu-item" data-action="user-menu#openSubscriptions user-menu#close" data-user-menu-mode="subscribe">
 						New Feed...
 					</button>
@@ -131,15 +128,27 @@
 						</div>
 						<div class="reader-actions">
 							<p class="reader-meta" data-reader-target="meta"></p>
-							<button
-								type="button"
-								class="mark-unread"
-								data-reader-target="markUnread"
-								data-action="reader#toggleRead"
-								disabled
-							>
-								Mark unread
-							</button>
+							<div class="reader-menu user-menu" data-controller="reader-menu">
+								<button
+									type="button"
+									class="reader-menu-button"
+									data-reader-menu-target="button"
+									data-action="reader-menu#toggle"
+									aria-haspopup="menu"
+									aria-expanded="false"
+								>...</button>
+								<div class="reader-menu-popover user-menu-popover" data-reader-menu-target="popover" hidden>
+									<button type="button" class="user-menu-item" data-reader-menu-target="toggleRead" data-action="reader-menu#toggleRead">
+										Mark as Read
+									</button>
+									<button type="button" class="user-menu-item" data-action="reader-menu#markAllRead">
+										Mark All as Read
+									</button>
+									<button type="button" class="user-menu-item" data-reader-menu-target="bookmark" data-action="reader-menu#toggleBookmark">
+										Bookmark
+									</button>
+								</div>
+							</div>
 						</div>
 					</header>
 

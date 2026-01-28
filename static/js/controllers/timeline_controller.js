@@ -40,18 +40,20 @@ export default class extends Controller {
 		this.hideReadSnapshotActive = false;
     this.handleClick = this.handleClick.bind(this);
     this.handleUnread = this.handleUnread.bind(this);
-    this.handleRead = this.handleRead.bind(this);
-    this.handleKeydown = this.handleKeydown.bind(this);
+		this.handleRead = this.handleRead.bind(this);
+		this.handleKeydown = this.handleKeydown.bind(this);
 		this.handleSearchKeydown = this.handleSearchKeydown.bind(this);
-    this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
-    this.handleAuthReady = this.handleAuthReady.bind(this);
+		this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
+		this.handleToggleBookmark = this.handleToggleBookmark.bind(this);
+		this.handleAuthReady = this.handleAuthReady.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
 		this.searchInputTarget.addEventListener("keydown", this.handleSearchKeydown);
     window.addEventListener("post:unread", this.handleUnread);
-    window.addEventListener("post:read", this.handleRead);
-    window.addEventListener("keydown", this.handleKeydown);
-    window.addEventListener("timeline:markAllRead", this.handleMarkAllRead);
-    window.addEventListener("auth:ready", this.handleAuthReady);
+		window.addEventListener("post:read", this.handleRead);
+		window.addEventListener("keydown", this.handleKeydown);
+		window.addEventListener("timeline:markAllRead", this.handleMarkAllRead);
+		window.addEventListener("timeline:toggleBookmark", this.handleToggleBookmark);
+		window.addEventListener("auth:ready", this.handleAuthReady);
     this.listTarget.classList.add("is-loading");
     this.load();
   }
@@ -60,10 +62,11 @@ export default class extends Controller {
     this.listTarget.removeEventListener("click", this.handleClick);
 		this.searchInputTarget.removeEventListener("keydown", this.handleSearchKeydown);
     window.removeEventListener("post:unread", this.handleUnread);
-    window.removeEventListener("post:read", this.handleRead);
-    window.removeEventListener("keydown", this.handleKeydown);
-    window.removeEventListener("timeline:markAllRead", this.handleMarkAllRead);
-    window.removeEventListener("auth:ready", this.handleAuthReady);
+		window.removeEventListener("post:read", this.handleRead);
+		window.removeEventListener("keydown", this.handleKeydown);
+		window.removeEventListener("timeline:markAllRead", this.handleMarkAllRead);
+		window.removeEventListener("timeline:toggleBookmark", this.handleToggleBookmark);
+		window.removeEventListener("auth:ready", this.handleAuthReady);
     this.clearReadSyncTimer();
   }
 
@@ -467,6 +470,7 @@ export default class extends Controller {
 		this.bookmark_toggling.add(post.id);
 		post.is_bookmarked = should_bookmark;
 		this.render();
+		this.dispatchBookmarkChange(post);
 
 		try {
 			if (should_bookmark) {
@@ -480,10 +484,26 @@ export default class extends Controller {
 			console.warn("Failed to toggle bookmark", error);
 			post.is_bookmarked = !should_bookmark;
 			this.render();
+			this.dispatchBookmarkChange(post);
 		}
 		finally {
 			this.bookmark_toggling.delete(post.id);
 		}
+	}
+
+	dispatchBookmarkChange(post) {
+		if (!post) {
+			return;
+		}
+
+		window.dispatchEvent(
+			new CustomEvent("post:bookmark", {
+				detail: {
+					postId: post.id,
+					is_bookmarked: Boolean(post.is_bookmarked)
+				}
+			})
+		);
 	}
 
 	isSearchFocused() {
@@ -514,6 +534,10 @@ export default class extends Controller {
 		catch (error) {
 			console.warn("Failed to mark all read", error);
 		}
+	}
+
+	handleToggleBookmark() {
+		this.toggleBookmark();
 	}
 
   handleAuthReady() {

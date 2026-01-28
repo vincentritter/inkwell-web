@@ -4,16 +4,18 @@ import { markFeedEntriesUnread } from "../api/feeds.js";
 import { markRead, markUnread } from "../storage/reads.js";
 
 export default class extends Controller {
-  static targets = ["content", "title", "meta", "markUnread", "avatar"];
+  static targets = ["content", "title", "meta", "avatar"];
 
 	connect() {
 		this.handlePostOpen = this.handlePostOpen.bind(this);
 		this.handleWelcome = this.handleWelcome.bind(this);
 		this.handleClear = this.handleClear.bind(this);
 		this.handleKeydown = this.handleKeydown.bind(this);
+		this.handleToggleRead = this.handleToggleRead.bind(this);
 		window.addEventListener("post:open", this.handlePostOpen);
 		window.addEventListener("reader:welcome", this.handleWelcome);
 		window.addEventListener("reader:clear", this.handleClear);
+		window.addEventListener("reader:toggleRead", this.handleToggleRead);
 		window.addEventListener("keydown", this.handleKeydown);
 		this.showPlaceholder();
 	}
@@ -22,6 +24,7 @@ export default class extends Controller {
 		window.removeEventListener("post:open", this.handlePostOpen);
 		window.removeEventListener("reader:welcome", this.handleWelcome);
 		window.removeEventListener("reader:clear", this.handleClear);
+		window.removeEventListener("reader:toggleRead", this.handleToggleRead);
 		window.removeEventListener("keydown", this.handleKeydown);
 	}
 
@@ -36,8 +39,6 @@ export default class extends Controller {
     this.currentPostTitle = post.title || "Untitled";
     this.currentPostId = post.id;
     this.currentPostRead = Boolean(post.is_read);
-    this.markUnreadTarget.disabled = false;
-    this.updateReadButton();
     this.setTitle(this.currentPostTitle);
     this.setMeta(post);
     this.contentTarget.innerHTML = "<p class=\"loading\">Loading readable view...</p>";
@@ -73,8 +74,6 @@ export default class extends Controller {
 	clearReader() {
 		this.currentPostId = null;
 		this.currentPostRead = false;
-		this.markUnreadTarget.disabled = true;
-		this.updateReadButton();
 		this.avatarTarget.hidden = true;
 		this.avatarTarget.src = "/images/blank_avatar.png";
 		this.avatarTarget.alt = "";
@@ -93,8 +92,6 @@ export default class extends Controller {
 		this.element.hidden = false;
 		this.currentPostId = null;
 		this.currentPostRead = false;
-		this.markUnreadTarget.disabled = true;
-		this.updateReadButton();
 		this.avatarTarget.hidden = true;
 		this.avatarTarget.src = "/images/blank_avatar.png";
 		this.avatarTarget.alt = "";
@@ -147,8 +144,6 @@ export default class extends Controller {
       return;
     }
 
-		this.setReadButtonPressed(true);
-
 		try {
 			if (this.currentPostRead) {
 				await markUnread(this.currentPostId);
@@ -161,12 +156,7 @@ export default class extends Controller {
 		catch (error) {
 			console.warn("Failed to toggle read state", error);
 		}
-		finally {
-			this.setReadButtonPressed(false);
-		}
-
     this.currentPostRead = !this.currentPostRead;
-    this.updateReadButton();
     const eventName = this.currentPostRead ? "post:read" : "post:unread";
     window.dispatchEvent(new CustomEvent(eventName, { detail: { postId: this.currentPostId } }));
   }
@@ -181,6 +171,10 @@ export default class extends Controller {
       this.toggleRead();
     }
   }
+
+	handleToggleRead() {
+		this.toggleRead();
+	}
 
   shouldIgnoreKey(event) {
     if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) {
@@ -199,22 +193,6 @@ export default class extends Controller {
     const tagName = target.tagName;
     return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
   }
-
-  updateReadButton() {
-    if (!this.markUnreadTarget) {
-      return;
-    }
-
-    this.markUnreadTarget.textContent = this.currentPostRead ? "Mark Unread" : "Mark Read";
-  }
-
-	setReadButtonPressed(pressed) {
-		if (!this.markUnreadTarget) {
-			return;
-		}
-
-		this.markUnreadTarget.classList.toggle("is-pressed", pressed);
-	}
 
   setTitle(title) {
     const trimmed = title ? title.trim() : "";

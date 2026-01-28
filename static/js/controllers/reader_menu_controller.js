@@ -1,0 +1,168 @@
+import { Controller } from "../stimulus.js";
+
+export default class extends Controller {
+	static targets = ["button", "popover", "toggleRead", "bookmark"];
+
+	connect() {
+		this.current_post_id = "";
+		this.is_read = false;
+		this.is_bookmarked = false;
+		this.handleDocumentClick = this.handleDocumentClick.bind(this);
+		this.handleKeydown = this.handleKeydown.bind(this);
+		this.handlePostOpen = this.handlePostOpen.bind(this);
+		this.handlePostRead = this.handlePostRead.bind(this);
+		this.handlePostUnread = this.handlePostUnread.bind(this);
+		this.handlePostBookmark = this.handlePostBookmark.bind(this);
+		this.handleReaderClear = this.handleReaderClear.bind(this);
+		this.handleReaderWelcome = this.handleReaderWelcome.bind(this);
+		window.addEventListener("post:open", this.handlePostOpen);
+		window.addEventListener("post:read", this.handlePostRead);
+		window.addEventListener("post:unread", this.handlePostUnread);
+		window.addEventListener("post:bookmark", this.handlePostBookmark);
+		window.addEventListener("reader:clear", this.handleReaderClear);
+		window.addEventListener("reader:welcome", this.handleReaderWelcome);
+		this.updateMenuState();
+	}
+
+	disconnect() {
+		this.removeListeners();
+		window.removeEventListener("post:open", this.handlePostOpen);
+		window.removeEventListener("post:read", this.handlePostRead);
+		window.removeEventListener("post:unread", this.handlePostUnread);
+		window.removeEventListener("post:bookmark", this.handlePostBookmark);
+		window.removeEventListener("reader:clear", this.handleReaderClear);
+		window.removeEventListener("reader:welcome", this.handleReaderWelcome);
+	}
+
+	toggle() {
+		if (this.popoverTarget.hidden) {
+			this.open();
+			return;
+		}
+		this.close();
+	}
+
+	open() {
+		this.popoverTarget.hidden = false;
+		this.buttonTarget.setAttribute("aria-expanded", "true");
+		document.addEventListener("click", this.handleDocumentClick);
+		document.addEventListener("keydown", this.handleKeydown);
+	}
+
+	close() {
+		if (this.popoverTarget.hidden) {
+			return;
+		}
+		this.popoverTarget.hidden = true;
+		this.buttonTarget.setAttribute("aria-expanded", "false");
+		this.removeListeners();
+	}
+
+	removeListeners() {
+		document.removeEventListener("click", this.handleDocumentClick);
+		document.removeEventListener("keydown", this.handleKeydown);
+	}
+
+	handleDocumentClick(event) {
+		if (this.element.contains(event.target)) {
+			return;
+		}
+		this.close();
+	}
+
+	handleKeydown(event) {
+		if (event.key == "Escape") {
+			this.close();
+		}
+	}
+
+	handlePostOpen(event) {
+		const post = event.detail?.post;
+		if (!post) {
+			this.clearState();
+			return;
+		}
+
+		this.current_post_id = post.id;
+		this.is_read = Boolean(post.is_read);
+		this.is_bookmarked = Boolean(post.is_bookmarked);
+		this.updateMenuState();
+	}
+
+	handlePostRead(event) {
+		if (!this.matchesActivePost(event.detail?.postId)) {
+			return;
+		}
+		this.is_read = true;
+		this.updateMenuState();
+	}
+
+	handlePostUnread(event) {
+		if (!this.matchesActivePost(event.detail?.postId)) {
+			return;
+		}
+		this.is_read = false;
+		this.updateMenuState();
+	}
+
+	handlePostBookmark(event) {
+		if (!this.matchesActivePost(event.detail?.postId)) {
+			return;
+		}
+		this.is_bookmarked = Boolean(event.detail?.is_bookmarked);
+		this.updateMenuState();
+	}
+
+	handleReaderClear() {
+		this.clearState();
+	}
+
+	handleReaderWelcome() {
+		this.clearState();
+	}
+
+	clearState() {
+		this.current_post_id = "";
+		this.is_read = false;
+		this.is_bookmarked = false;
+		this.updateMenuState();
+	}
+
+	matchesActivePost(post_id) {
+		return post_id && this.current_post_id && post_id == this.current_post_id;
+	}
+
+	updateMenuState() {
+		const has_post = Boolean(this.current_post_id);
+		const read_label = this.is_read ? "Mark as Unread" : "Mark as Read";
+		const bookmark_label = this.is_bookmarked ? "Unbookmark" : "Bookmark";
+		this.toggleReadTarget.textContent = read_label;
+		this.bookmarkTarget.textContent = bookmark_label;
+		this.toggleReadTarget.disabled = !has_post;
+		this.bookmarkTarget.disabled = !has_post;
+	}
+
+	toggleRead(event) {
+		event.preventDefault();
+		if (!this.current_post_id) {
+			return;
+		}
+		window.dispatchEvent(new CustomEvent("reader:toggleRead"));
+		this.close();
+	}
+
+	markAllRead(event) {
+		event.preventDefault();
+		window.dispatchEvent(new CustomEvent("timeline:markAllRead"));
+		this.close();
+	}
+
+	toggleBookmark(event) {
+		event.preventDefault();
+		if (!this.current_post_id) {
+			return;
+		}
+		window.dispatchEvent(new CustomEvent("timeline:toggleBookmark"));
+		this.close();
+	}
+}
