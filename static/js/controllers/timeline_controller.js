@@ -925,6 +925,7 @@ export default class extends Controller {
 		this.hideRead = !this.hideRead;
 		this.persistHideReadSetting();
 		if (this.hideRead) {
+			this.clearActiveReadSelection();
 			this.captureHideReadSnapshot();
 			this.hideReadSnapshotActive = true;
 		}
@@ -933,6 +934,21 @@ export default class extends Controller {
 			this.hideReadSnapshotActive = false;
 		}
 		this.render();
+	}
+
+	clearActiveReadSelection() {
+		if (!this.activePostId) {
+			return;
+		}
+
+		const active_post = this.posts.find((post) => post.id == this.activePostId);
+		if (!active_post || !active_post.is_read) {
+			return;
+		}
+
+		this.activePostId = null;
+		this.unreadOverridePostId = null;
+		window.dispatchEvent(new CustomEvent("reader:clear"));
 	}
 
 	captureHideReadSnapshot() {
