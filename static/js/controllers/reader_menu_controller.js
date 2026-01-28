@@ -1,10 +1,12 @@
 import { Controller } from "../stimulus.js";
 
 export default class extends Controller {
-	static targets = ["button", "popover", "toggleRead", "bookmark"];
+	static targets = ["button", "popover", "newPost", "copyLink", "toggleRead", "bookmark"];
 
 	connect() {
 		this.current_post_id = "";
+		this.current_post_url = "";
+		this.current_post_title = "";
 		this.is_read = false;
 		this.is_bookmarked = false;
 		this.handleDocumentClick = this.handleDocumentClick.bind(this);
@@ -84,6 +86,8 @@ export default class extends Controller {
 		}
 
 		this.current_post_id = post.id;
+		this.current_post_url = (post.url || "").trim();
+		this.current_post_title = (post.title || "").trim();
 		this.is_read = Boolean(post.is_read);
 		this.is_bookmarked = Boolean(post.is_bookmarked);
 		this.updateMenuState();
@@ -123,6 +127,8 @@ export default class extends Controller {
 
 	clearState() {
 		this.current_post_id = "";
+		this.current_post_url = "";
+		this.current_post_title = "";
 		this.is_read = false;
 		this.is_bookmarked = false;
 		this.updateMenuState();
@@ -134,8 +140,11 @@ export default class extends Controller {
 
 	updateMenuState() {
 		const has_post = Boolean(this.current_post_id);
+		const has_link = Boolean(this.current_post_url);
 		const read_label = this.is_read ? "Mark as Unread" : "Mark as Read";
 		const bookmark_label = this.is_bookmarked ? "Unbookmark" : "Bookmark";
+		this.newPostTarget.disabled = !has_link;
+		this.copyLinkTarget.disabled = !has_link;
 		this.toggleReadTarget.textContent = read_label;
 		this.bookmarkTarget.textContent = bookmark_label;
 		this.toggleReadTarget.disabled = !has_post;
@@ -164,5 +173,74 @@ export default class extends Controller {
 		}
 		window.dispatchEvent(new CustomEvent("timeline:toggleBookmark"));
 		this.close();
+	}
+
+	newPost(event) {
+		event.preventDefault();
+		if (!this.current_post_url) {
+			return;
+		}
+
+		const title = this.current_post_title || "Post";
+		const link = `[${title}](${this.current_post_url})`;
+		const selection_text = this.getSelectedText();
+		const quote = this.formatQuote(selection_text);
+		const markdown = quote ? `${link}:\n\n${quote}` : link;
+		const encoded = encodeURIComponent(markdown);
+		window.location.href = `https://micro.blog/post?text=${encoded}`;
+		this.close();
+	}
+
+	async copyLink(event) {
+		event.preventDefault();
+		if (!this.current_post_url) {
+			return;
+		}
+
+		try {
+			await this.copyToClipboard(this.current_post_url);
+		}
+		catch (error) {
+			console.warn("Failed to copy link", error);
+		}
+		this.close();
+	}
+
+	async copyToClipboard(text) {
+		if (navigator.clipboard && window.isSecureContext) {
+			await navigator.clipboard.writeText(text);
+			return;
+		}
+
+		const textarea = document.createElement("textarea");
+		textarea.value = text;
+		textarea.setAttribute("readonly", "");
+		textarea.style.position = "absolute";
+		textarea.style.left = "-9999px";
+		document.body.appendChild(textarea);
+		textarea.select();
+		document.execCommand("copy");
+		document.body.removeChild(textarea);
+	}
+
+	getSelectedText() {
+		const selection = window.getSelection?.();
+		if (!selection) {
+			return "";
+		}
+
+		return (selection.toString() || "").trim();
+	}
+
+	formatQuote(text) {
+		const trimmed = (text || "").trim();
+		if (!trimmed) {
+			return "";
+		}
+
+		return trimmed
+			.split(/\r?\n/)
+			.map((line) => `> ${line}`)
+			.join("\n");
 	}
 }
