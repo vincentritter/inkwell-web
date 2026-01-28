@@ -78,6 +78,26 @@ export default class extends Controller {
     this.clearSelection();
   }
 
+	newPost() {
+		const text = this.currentSelection;
+		if (!text) {
+			return;
+		}
+
+		const post_url = (this.contentTarget.dataset.postUrl || "").trim();
+		if (!post_url) {
+			return;
+		}
+
+		const post_title = (this.contentTarget.dataset.postTitle || "Post").trim();
+		const link = `[${post_title || "Post"}](${post_url})`;
+		const quote = this.formatQuote(text);
+		const markdown = quote ? `${link}:\n\n${quote}` : link;
+		const encoded = encodeURIComponent(markdown);
+		window.location.href = `https://micro.blog/post?text=${encoded}`;
+		this.clearSelection();
+	}
+
   clearSelection() {
     const selection = window.getSelection();
     if (selection) {
@@ -86,6 +106,18 @@ export default class extends Controller {
     this.currentSelection = "";
     this.hideToolbar();
   }
+
+	formatQuote(text) {
+		const trimmed = (text || "").trim();
+		if (!trimmed) {
+			return "";
+		}
+
+		return trimmed
+			.split(/\r?\n/)
+			.map((line) => `> ${line}`)
+			.join("\n");
+	}
 
   hideToolbar() {
     this.toolbarTarget.hidden = true;
