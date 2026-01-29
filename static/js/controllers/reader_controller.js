@@ -211,35 +211,39 @@ export default class extends Controller {
     const formattedDate = this.formatDate(post.published_at);
     this.metaTarget.textContent = "";
 
-    const fragment = document.createDocumentFragment();
-    if (source) {
-      if (sourceUrl) {
-        const link = document.createElement("a");
-        link.href = sourceUrl;
-        link.textContent = source;
-        fragment.append(link);
-      }
-      else {
-        fragment.append(document.createTextNode(source));
-      }
-    }
+		const fragment = document.createDocumentFragment();
+		if (source) {
+			if (sourceUrl) {
+				const link = document.createElement("a");
+				link.href = sourceUrl;
+				link.textContent = source;
+				link.target = "_blank";
+				link.rel = "noopener noreferrer";
+				fragment.append(link);
+			}
+			else {
+				fragment.append(document.createTextNode(source));
+			}
+		}
 
-    if (formattedDate) {
-      if (source) {
-        fragment.append(document.createTextNode(" - "));
-      }
-      if (post.url) {
-        const link = document.createElement("a");
-        link.href = post.url;
-        link.textContent = formattedDate;
-        fragment.append(link);
-      }
-      else {
-        fragment.append(document.createTextNode(formattedDate));
-      }
-    }
+		if (formattedDate) {
+			if (source) {
+				fragment.append(document.createTextNode(" - "));
+			}
+			if (post.url) {
+				const link = document.createElement("a");
+				link.href = post.url;
+				link.textContent = formattedDate;
+				link.target = "_blank";
+				link.rel = "noopener noreferrer";
+				fragment.append(link);
+			}
+			else {
+				fragment.append(document.createTextNode(formattedDate));
+			}
+		}
 
-    this.metaTarget.append(fragment);
+		this.metaTarget.append(fragment);
   }
 
   truncateTitle(title) {

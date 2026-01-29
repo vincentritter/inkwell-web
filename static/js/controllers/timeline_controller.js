@@ -496,7 +496,10 @@ export default class extends Controller {
 			return;
 		}
 
-		window.location.href = post_url;
+		const new_window = window.open(post_url, "_blank", "noopener,noreferrer");
+		if (new_window) {
+			new_window.opener = null;
+		}
 	}
 
 	async toggleBookmark() {
