@@ -1020,14 +1020,6 @@ button:focus:not(:focus-visible) {
 	color: var(--ink-text);
 }
 
-.theme-meta {
-	margin: 0;
-	font-size: 0.7rem;
-	color: var(--ink-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-}
-
 .theme-actions {
 	display: flex;
 	align-items: center;

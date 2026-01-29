@@ -173,14 +173,11 @@ export default class extends Controller {
 				? ""
 				: `<button type=\"button\" class=\"btn-sm is-destructive\" data-theme-slug=\"${theme.slug}\" data-action=\"themes#uninstallTheme\">Uninstall</button>`;
 			const action = `${use_action}${uninstall_action ? `\n\t\t\t\t\t\t${uninstall_action}` : ""}`;
-			const note = theme.slug == "default" ? "Built-in" : "Custom";
 			const safe_name = this.escapeHtml(theme.name);
-			const safe_note = this.escapeHtml(note);
 			return `
 				<div class=\"theme-item\" data-theme-slug=\"${theme.slug}\">
 					<div class=\"theme-info\">
 						<p class=\"theme-title\">${safe_name}</p>
-						<p class=\"theme-meta\">${safe_note}</p>
 					</div>
 					<div class=\"theme-actions\">
 						${action}
