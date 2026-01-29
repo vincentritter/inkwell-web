@@ -121,7 +121,7 @@ async function loadDefaultTheme() {
 			throw new Error("Failed to load default theme");
 		}
 		const payload = await response.json();
-		return normalizeTheme(payload, { allow_empty_colors: true });
+		return normalizeTheme(payload, { allow_empty_colors: true, allow_default_name: true });
 	}
 	catch (error) {
 		console.warn("Unable to load default theme", error);
@@ -142,7 +142,7 @@ function normalizeTheme(theme, options = {}) {
 	if (!name) {
 		throw new Error("Theme must include a name.");
 	}
-	if (name.toLowerCase() == "default") {
+	if (name.toLowerCase() == "default" && options.allow_default_name != true) {
 		throw new Error("Theme name \"Default\" is reserved.");
 	}
 
@@ -164,10 +164,7 @@ function normalizeTheme(theme, options = {}) {
 		throw new Error("Theme colors cannot be empty.");
 	}
 
-	const slug_source = typeof theme.slug == "string" && theme.slug.trim()
-		? theme.slug.trim()
-		: name;
-	const slug = slugify(slug_source) || slugify(name);
+	const slug = slugify(name);
 
 	return {
 		name,

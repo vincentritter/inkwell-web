@@ -1,6 +1,5 @@
 {
 	"name": "Default",
-	"slug": "default",
 	"colors": {
 		"--ink-text": "#1d1a16",
 		"--ink-muted": "#6b6258",
