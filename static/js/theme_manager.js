@@ -46,13 +46,46 @@ export function applyThemeBySlug(slug) {
 export function addTheme(theme_input) {
 	const cleaned = normalizeTheme(theme_input);
 	const stored = getStoredThemes();
-	const filtered = stored.filter((theme) => theme.slug != cleaned.slug);
+	const cleaned_name = cleaned.name.toLowerCase();
+	const filtered = stored.filter((theme) => {
+		if (theme.slug == cleaned.slug) {
+			return false;
+		}
+		const theme_name = typeof theme.name == "string" ? theme.name.trim().toLowerCase() : "";
+		if (theme_name && theme_name == cleaned_name) {
+			return false;
+		}
+		return true;
+	});
 	const updated = [cleaned, ...filtered];
 	setStoredThemes(updated);
 	themes = [default_theme, ...updated];
 	applyTheme(cleaned, { persist: true });
 	dispatchThemesUpdated();
 	return cleaned;
+}
+
+export function removeThemeBySlug(slug) {
+	if (!slug || slug == "default") {
+		return null;
+	}
+
+	const stored = getStoredThemes();
+	const updated = stored.filter((theme) => theme.slug != slug);
+	if (updated.length == stored.length) {
+		return null;
+	}
+
+	setStoredThemes(updated);
+	themes = [default_theme, ...updated];
+
+	const removed_active = active_theme && active_theme.slug == slug;
+	if (removed_active) {
+		applyTheme(default_theme, { persist: true });
+	}
+
+	dispatchThemesUpdated();
+	return slug;
 }
 
 function applyTheme(theme, options = {}) {
@@ -108,6 +141,9 @@ function normalizeTheme(theme, options = {}) {
 	const name = typeof theme.name == "string" ? theme.name.trim() : "";
 	if (!name) {
 		throw new Error("Theme must include a name.");
+	}
+	if (name.toLowerCase() == "default") {
+		throw new Error("Theme name \"Default\" is reserved.");
 	}
 
 	const colors = theme.colors && typeof theme.colors == "object" ? theme.colors : {};

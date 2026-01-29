@@ -3,11 +3,65 @@
 	--pico-border-radius: 7px;
 	--pico-form-element-spacing-vertical: 0.5rem;
 	--pico-form-element-spacing-horizontal: 0.75rem;
+	--ink-text: #1d1a16;
+	--ink-muted: #6b6258;
+	--ink-sand: #e8ddcb;
+	--ink-shadow: rgba(23, 18, 12, 0.08);
+	--ink-link: #4779b2;
+	--ink-body-background: #fff;
+	--ink-auth-background: #f6f1e6;
+	--ink-auth-card-background: rgba(255, 255, 255, 0.6);
+	--ink-left-pane-background: #f4f6f9;
+	--ink-pane-divider: rgba(107, 98, 88, 0.15);
+	--ink-avatar-border: #DDD;
+	--ink-avatar-border-muted: rgba(29, 26, 22, 0.1);
+	--ink-popover-background: #fff;
+	--ink-popover-border: rgba(29, 26, 22, 0.12);
+	--ink-popover-shadow: rgba(29, 26, 22, 0.18);
+	--ink-button-surface: #f8f8f8;
+	--ink-button-border: rgba(29, 26, 22, 0.12);
+	--ink-button-border-hover: rgba(29, 26, 22, 0.2);
+	--ink-menu-hover: rgba(29, 26, 22, 0.06);
+	--ink-menu-divider: rgba(29, 26, 22, 0.12);
+	--ink-segment-background: #f8f8f8;
+	--ink-segment-border: #d8d8d8;
+	--ink-segment-active: #eaeaea;
+	--ink-control-border: #DDD;
+	--ink-control-background: #f8f8f8;
+	--ink-control-border-active: #c9c9c9;
+	--ink-control-background-active: #e8e8e8;
+	--ink-control-shadow-inset: rgba(0, 0, 0, 0.12);
+	--ink-search-background: #FFF;
+	--ink-card-background: #fff;
+	--ink-card-border: rgba(29, 26, 22, 0.08);
+	--ink-card-shadow: rgba(29, 26, 22, 0.12);
+	--ink-status-background: rgba(29, 26, 22, 0.08);
+	--ink-right-pane-background: #fff;
+	--ink-empty-background: #f6f1e6;
+	--ink-toolbar-background: #1f1c18;
+	--ink-toolbar-text: #fff;
+	--ink-toolbar-shadow: rgba(0, 0, 0, 0.25);
+	--ink-toolbar-hover: rgba(255, 255, 255, 0.2);
+	--ink-reader-text: #2a241f;
+	--ink-card-frosted: rgba(255, 255, 255, 0.6);
+	--ink-highlight-quote: #413a33;
+	--ink-highlight-background: #FFF9D6;
+	--ink-row-default: #fff;
+	--ink-row-border: rgba(47, 79, 63, 0.4);
+	--ink-timeline-selected-background: #355C7D;
+	--ink-timeline-selected-text: #FFFFFF;
+	--ink-timeline-selected-border: #355C7D;
+	--ink-day-1: #CDD6EA;
+	--ink-day-2: #E3E8F2;
+	--ink-day-4: #F1F4F8;
+	--ink-day-1-border: #BEC7DC;
+	--ink-day-2-border: #D5DBE7;
+	--ink-day-4-border: #E3E7EE;
 }
 
 body {
 	background: var(--ink-body-background);
-	color: var(--ink-ink);
+	color: var(--ink-text);
 	min-height: 100vh;
 }
 
@@ -29,6 +83,7 @@ main[data-auth-state="loading"] .app-shell {
 
 article {
   box-shadow: none;
+  background: none;
 }
 
 h1,
@@ -254,7 +309,7 @@ button:focus:not(:focus-visible) {
 }
 
 .reader-menu-button:hover {
-	color: var(--ink-ink);
+	color: var(--ink-text);
 }
 
 .reader-menu-icon {
@@ -270,7 +325,7 @@ button:focus:not(:focus-visible) {
   text-align: left;
   border: none;
   background: transparent;
-  color: var(--ink-ink);
+  color: var(--ink-text);
   padding: 0.45rem 0.85rem;
   font-size: 0.8rem;
   cursor: pointer;
@@ -305,7 +360,7 @@ button:focus:not(:focus-visible) {
 	padding: 0.4rem 0.6rem;
 	font-size: 0.7rem;
 	border-radius: 0;
-	color: var(--ink-ink);
+	color: var(--ink-text);
 	cursor: pointer;
 	margin-bottom: 0;
 	border-right: 1px solid var(--ink-segment-border);
@@ -326,7 +381,7 @@ button:focus:not(:focus-visible) {
 
 .segments button[aria-pressed="true"] {
 	background: var(--ink-segment-active);
-	color: var(--ink-ink);
+	color: var(--ink-text);
 	box-shadow: none;
 }
 
@@ -545,7 +600,7 @@ button:focus:not(:focus-visible) {
 .timeline-title {
   font-weight: 600;
   font-size: 0.75rem;
-  color: var(--ink-ink);
+  color: var(--ink-text);
   margin-bottom: 0.35rem;
 	overflow-wrap: anywhere;
 	word-break: break-word;
@@ -571,7 +626,7 @@ button:focus:not(:focus-visible) {
 
 .timeline-summary {
   font-size: 0.75rem;
-  color: var(--ink-ink);
+  color: var(--ink-text);
   margin-bottom: 0.35rem;
 	overflow-wrap: anywhere;
 	word-break: break-word;
@@ -904,7 +959,7 @@ button:focus:not(:focus-visible) {
 .themes-import-label {
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: var(--ink-ink);
+	color: var(--ink-text);
 }
 
 .themes-import textarea {
@@ -962,7 +1017,7 @@ button:focus:not(:focus-visible) {
 	margin: 0;
 	font-size: 0.85rem;
 	font-weight: 600;
-	color: var(--ink-ink);
+	color: var(--ink-text);
 }
 
 .theme-meta {
@@ -982,7 +1037,7 @@ button:focus:not(:focus-visible) {
 .theme-active {
 	font-size: 0.7rem;
 	font-weight: 600;
-	color: var(--ink-ink);
+	color: var(--ink-text);
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 }
@@ -1036,7 +1091,7 @@ button:focus:not(:focus-visible) {
 	margin: 0;
 	font-size: 0.8rem;
 	font-weight: 600;
-	color: var(--ink-ink);
+	color: var(--ink-text);
 }
 
 .subscription-url {
@@ -1111,7 +1166,7 @@ button:focus:not(:focus-visible) {
 
 .reader-tabs.is-single button[aria-pressed="true"] {
   background: transparent;
-  color: var(--ink-ink);
+  color: var(--ink-text);
 }
 
 .reader-tabs.is-single {
@@ -1140,7 +1195,7 @@ button:focus:not(:focus-visible) {
 .mark-unread.is-pressed {
 	border-color: var(--ink-control-border-active);
 	background: var(--ink-control-background-active);
-	color: var(--ink-ink);
+	color: var(--ink-text);
 	box-shadow: inset 0 1px 2px var(--ink-control-shadow-inset);
 }
 
@@ -1252,7 +1307,7 @@ input[type="search"]::-webkit-search-decoration {
   margin: 0;
   padding-block: 0.4rem;
   padding-left: 1.1rem;
-  color: var(--ink-ink);
+  color: var(--ink-text);
 }
 
 .reader-welcome-tips li {
@@ -1305,7 +1360,7 @@ input[type="search"]::-webkit-search-decoration {
 
 .btn-sm:hover {
   border-color: var(--ink-button-border-hover);
-  color: var(--ink-ink);
+  color: var(--ink-text);
 }
 
 .highlights-empty {

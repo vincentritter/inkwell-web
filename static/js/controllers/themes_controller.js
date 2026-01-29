@@ -1,5 +1,5 @@
 import { Controller } from "../stimulus.js";
-import { addTheme, applyThemeBySlug, getActiveTheme, getThemes } from "../theme_manager.js?20260121.1";
+import { addTheme, applyThemeBySlug, getActiveTheme, getThemes, removeThemeBySlug } from "../theme_manager.js?20260121.1";
 
 export default class extends Controller {
 	static targets = [
@@ -147,6 +147,14 @@ export default class extends Controller {
 		applyThemeBySlug(theme_slug);
 	}
 
+	uninstallTheme(event) {
+		const theme_slug = event.currentTarget?.dataset.themeSlug;
+		if (!theme_slug) {
+			return;
+		}
+		removeThemeBySlug(theme_slug);
+	}
+
 	renderThemes() {
 		const themes = getThemes();
 		const active_theme = getActiveTheme();
@@ -157,9 +165,14 @@ export default class extends Controller {
 
 		const rows = themes.map((theme) => {
 			const is_active = active_theme && active_theme.slug == theme.slug;
-			const action = is_active
+			const is_default = theme.slug == "default";
+			const use_action = is_active
 				? "<span class=\"theme-active\">Active</span>"
 				: `<button type=\"button\" class=\"btn-sm\" data-theme-slug=\"${theme.slug}\" data-action=\"themes#applyTheme\">Use Theme</button>`;
+			const uninstall_action = is_default || is_active
+				? ""
+				: `<button type=\"button\" class=\"btn-sm is-destructive\" data-theme-slug=\"${theme.slug}\" data-action=\"themes#uninstallTheme\">Uninstall</button>`;
+			const action = `${use_action}${uninstall_action ? `\n\t\t\t\t\t\t${uninstall_action}` : ""}`;
 			const note = theme.slug == "default" ? "Built-in" : "Custom";
 			const safe_name = this.escapeHtml(theme.name);
 			const safe_note = this.escapeHtml(note);

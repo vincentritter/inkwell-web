@@ -1,11 +1,11 @@
 export const timelineCellColors = {
-	"day-1": "var(--ink-day-1)",
-	"day-2": "var(--ink-day-2)",
-	"day-3": "var(--ink-day-3)",
-	"day-4": "var(--ink-day-4)",
-	"day-5": "var(--ink-day-5)",
-	"day-6": "var(--ink-day-6)",
-	"day-7": "var(--ink-day-7)"
+	"day-1": "var(--ink-day-1-cell)",
+	"day-2": "var(--ink-day-2-cell)",
+	"day-3": "var(--ink-day-3-cell)",
+	"day-4": "var(--ink-day-4-cell)",
+	"day-5": "var(--ink-day-5-cell)",
+	"day-6": "var(--ink-day-6-cell)",
+	"day-7": "var(--ink-day-7-cell)"
 };
 
 export const timelineBorderColors = {
