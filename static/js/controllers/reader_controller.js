@@ -1,5 +1,6 @@
 import { Controller } from "../stimulus.js";
 import { fetchReadableContent } from "../api/content.js";
+import { DEFAULT_AVATAR_URL } from "../api/posts.js";
 import { markFeedEntriesUnread } from "../api/feeds.js";
 import { markRead, markUnread } from "../storage/reads.js";
 
@@ -8,6 +9,7 @@ export default class extends Controller {
 
 	connect() {
 		this.handlePostOpen = this.handlePostOpen.bind(this);
+		this.handleAvatarError = this.handleAvatarError.bind(this);
 		this.handleWelcome = this.handleWelcome.bind(this);
 		this.handleClear = this.handleClear.bind(this);
 		this.handleKeydown = this.handleKeydown.bind(this);
@@ -17,6 +19,7 @@ export default class extends Controller {
 		window.addEventListener("reader:clear", this.handleClear);
 		window.addEventListener("reader:toggleRead", this.handleToggleRead);
 		window.addEventListener("keydown", this.handleKeydown);
+		this.avatarTarget.addEventListener("error", this.handleAvatarError);
 		this.showPlaceholder();
 	}
 
@@ -26,6 +29,7 @@ export default class extends Controller {
 		window.removeEventListener("reader:clear", this.handleClear);
 		window.removeEventListener("reader:toggleRead", this.handleToggleRead);
 		window.removeEventListener("keydown", this.handleKeydown);
+		this.avatarTarget.removeEventListener("error", this.handleAvatarError);
 	}
 
   async handlePostOpen(event) {
@@ -62,6 +66,20 @@ export default class extends Controller {
     this.contentTarget.dataset.postTitle = this.currentPostTitle;
     this.dispatch("ready", { detail: { postId: post.id }, prefix: "reader" });
   }
+
+	handleAvatarError(event) {
+		const image_el = event.target;
+		if (!image_el || image_el.tagName != "IMG") {
+			return;
+		}
+
+		const current_src = image_el.getAttribute("src") || "";
+		if (current_src == DEFAULT_AVATAR_URL) {
+			return;
+		}
+
+		image_el.src = DEFAULT_AVATAR_URL;
+	}
 
 	handleWelcome() {
 		this.showPlaceholder();

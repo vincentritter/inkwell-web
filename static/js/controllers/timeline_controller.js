@@ -46,6 +46,7 @@ export default class extends Controller {
     this.handleClick = this.handleClick.bind(this);
     this.handleUnread = this.handleUnread.bind(this);
 		this.handleRead = this.handleRead.bind(this);
+		this.handleAvatarError = this.handleAvatarError.bind(this);
 		this.handleKeydown = this.handleKeydown.bind(this);
 		this.handleSearchKeydown = this.handleSearchKeydown.bind(this);
 		this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
@@ -54,6 +55,7 @@ export default class extends Controller {
 		this.handleAuthReady = this.handleAuthReady.bind(this);
 		this.handleTimelineSync = this.handleTimelineSync.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
+		this.listTarget.addEventListener("error", this.handleAvatarError, true);
 		this.searchInputTarget.addEventListener("keydown", this.handleSearchKeydown);
     window.addEventListener("post:unread", this.handleUnread);
 		window.addEventListener("post:read", this.handleRead);
@@ -70,6 +72,7 @@ export default class extends Controller {
 
   disconnect() {
     this.listTarget.removeEventListener("click", this.handleClick);
+		this.listTarget.removeEventListener("error", this.handleAvatarError, true);
 		this.searchInputTarget.removeEventListener("keydown", this.handleSearchKeydown);
     window.removeEventListener("post:unread", this.handleUnread);
 		window.removeEventListener("post:read", this.handleRead);
@@ -405,6 +408,39 @@ export default class extends Controller {
     this.scheduleReadSync();
     this.render();
   }
+
+	handleAvatarError(event) {
+		const image_el = event.target;
+		if (!image_el || image_el.tagName != "IMG") {
+			return;
+		}
+
+		if (!image_el.classList.contains("avatar")) {
+			return;
+		}
+
+		const current_src = image_el.getAttribute("src") || "";
+		if (current_src == DEFAULT_AVATAR_URL) {
+			return;
+		}
+
+		image_el.src = DEFAULT_AVATAR_URL;
+
+		const post_el = image_el.closest("[data-post-id]");
+		if (!post_el) {
+			return;
+		}
+
+		const post_id = post_el.dataset.postId;
+		if (!post_id) {
+			return;
+		}
+
+		const post = this.posts.find((entry) => entry.id == post_id);
+		if (post && post.avatar_url != DEFAULT_AVATAR_URL) {
+			post.avatar_url = DEFAULT_AVATAR_URL;
+		}
+	}
 
   handleKeydown(event) {
     if (this.shouldIgnoreKey(event)) {
