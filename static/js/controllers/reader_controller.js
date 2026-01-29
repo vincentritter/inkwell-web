@@ -12,11 +12,13 @@ export default class extends Controller {
 		this.handleAvatarError = this.handleAvatarError.bind(this);
 		this.handleWelcome = this.handleWelcome.bind(this);
 		this.handleClear = this.handleClear.bind(this);
+		this.handleSummary = this.handleSummary.bind(this);
 		this.handleKeydown = this.handleKeydown.bind(this);
 		this.handleToggleRead = this.handleToggleRead.bind(this);
 		window.addEventListener("post:open", this.handlePostOpen);
 		window.addEventListener("reader:welcome", this.handleWelcome);
 		window.addEventListener("reader:clear", this.handleClear);
+		window.addEventListener("reader:summary", this.handleSummary);
 		window.addEventListener("reader:toggleRead", this.handleToggleRead);
 		window.addEventListener("keydown", this.handleKeydown);
 		this.avatarTarget.addEventListener("error", this.handleAvatarError);
@@ -27,6 +29,7 @@ export default class extends Controller {
 		window.removeEventListener("post:open", this.handlePostOpen);
 		window.removeEventListener("reader:welcome", this.handleWelcome);
 		window.removeEventListener("reader:clear", this.handleClear);
+		window.removeEventListener("reader:summary", this.handleSummary);
 		window.removeEventListener("reader:toggleRead", this.handleToggleRead);
 		window.removeEventListener("keydown", this.handleKeydown);
 		this.avatarTarget.removeEventListener("error", this.handleAvatarError);
@@ -87,6 +90,25 @@ export default class extends Controller {
 
 	handleClear() {
 		this.clearReader();
+	}
+
+	handleSummary(event) {
+		const summary_html = event.detail?.html || "";
+		this.element.classList.remove("is-empty");
+		this.element.hidden = false;
+		this.currentPostId = null;
+		this.currentPostRead = false;
+		this.currentPostTitle = "";
+		this.avatarTarget.hidden = true;
+		this.avatarTarget.src = "/images/blank_avatar.png";
+		this.avatarTarget.alt = "";
+		this.titleTarget.textContent = "";
+		this.titleTarget.title = "";
+		this.metaTarget.textContent = "";
+		this.contentTarget.dataset.postId = "";
+		this.contentTarget.dataset.postUrl = "";
+		this.contentTarget.dataset.postTitle = "";
+		this.contentTarget.innerHTML = this.sanitizeHtml(summary_html);
 	}
 
 	clearReader() {

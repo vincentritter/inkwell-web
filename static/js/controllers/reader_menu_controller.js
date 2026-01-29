@@ -17,12 +17,14 @@ export default class extends Controller {
 		this.handlePostBookmark = this.handlePostBookmark.bind(this);
 		this.handleReaderClear = this.handleReaderClear.bind(this);
 		this.handleReaderWelcome = this.handleReaderWelcome.bind(this);
+		this.handleReaderSummary = this.handleReaderSummary.bind(this);
 		window.addEventListener("post:open", this.handlePostOpen);
 		window.addEventListener("post:read", this.handlePostRead);
 		window.addEventListener("post:unread", this.handlePostUnread);
 		window.addEventListener("post:bookmark", this.handlePostBookmark);
 		window.addEventListener("reader:clear", this.handleReaderClear);
 		window.addEventListener("reader:welcome", this.handleReaderWelcome);
+		window.addEventListener("reader:summary", this.handleReaderSummary);
 		this.updateMenuState();
 	}
 
@@ -34,6 +36,7 @@ export default class extends Controller {
 		window.removeEventListener("post:bookmark", this.handlePostBookmark);
 		window.removeEventListener("reader:clear", this.handleReaderClear);
 		window.removeEventListener("reader:welcome", this.handleReaderWelcome);
+		window.removeEventListener("reader:summary", this.handleReaderSummary);
 	}
 
 	toggle() {
@@ -122,6 +125,10 @@ export default class extends Controller {
 	}
 
 	handleReaderWelcome() {
+		this.clearState();
+	}
+
+	handleReaderSummary() {
 		this.clearState();
 	}
 

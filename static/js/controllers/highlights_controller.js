@@ -9,14 +9,17 @@ export default class extends Controller {
     this.highlights = [];
     this.handleHighlight = this.handleHighlight.bind(this);
     this.handlePostOpen = this.handlePostOpen.bind(this);
+		this.handleSummary = this.handleSummary.bind(this);
     window.addEventListener("highlight:create", this.handleHighlight);
     window.addEventListener("post:open", this.handlePostOpen);
+		window.addEventListener("reader:summary", this.handleSummary);
     this.render();
   }
 
   disconnect() {
     window.removeEventListener("highlight:create", this.handleHighlight);
     window.removeEventListener("post:open", this.handlePostOpen);
+		window.removeEventListener("reader:summary", this.handleSummary);
   }
 
   async handlePostOpen(event) {
@@ -26,6 +29,13 @@ export default class extends Controller {
     this.showReader();
     this.render();
   }
+
+	handleSummary() {
+		this.activePostId = null;
+		this.highlights = [];
+		this.showReader();
+		this.render();
+	}
 
   handleHighlight(event) {
     const highlight = event.detail;

@@ -5,6 +5,7 @@ import {
 	fetchFeedIcons,
 	fetchFeedStarredEntryIds,
 	markFeedEntriesRead,
+	summarizeFeedEntries,
 	starFeedEntries,
 	unstarFeedEntries
 } from "../api/feeds.js";
@@ -33,6 +34,8 @@ export default class extends Controller {
 		this.timeline_load_token = 0;
 		this.subscriptionCount = null;
 		this.pending_sync = false;
+		this.summary_is_loading = false;
+		this.summary_request_token = 0;
     this.searchActive = false;
 		this.searchQuery = "";
     this.readIds = new Set();
@@ -668,10 +671,18 @@ export default class extends Controller {
     }
 
     const posts = this.getVisiblePosts();
+		const should_render_summary = this.activeSegment == "fading" && !this.searchActive;
+		const has_unread_posts = should_render_summary
+			? posts.some((post) => !post.is_read)
+			: false;
 
     if (!posts.length) {
 			if (this.subscriptionCount == 0) {
 				this.listTarget.innerHTML = this.renderNoSubscriptions();
+				return;
+			}
+			if (should_render_summary) {
+				this.listTarget.innerHTML = `${this.renderSummaryItem(has_unread_posts)}<p class="canvas-empty"><!-- No posts. --></p>`;
 				return;
 			}
       this.listTarget.innerHTML = "<p class=\"canvas-empty\"><!-- No posts. --></p>";
@@ -679,7 +690,7 @@ export default class extends Controller {
     }
 
     const items = posts.map((post) => this.renderPost(post)).join("");
-    this.listTarget.innerHTML = items;
+		this.listTarget.innerHTML = should_render_summary ? `${this.renderSummaryItem(has_unread_posts)}${items}` : items;
   }
 
 	renderNoSubscriptions() {
@@ -695,11 +706,87 @@ export default class extends Controller {
 		`;
 	}
 
+	renderSummaryItem(has_unread_posts) {
+		const is_disabled = !has_unread_posts || this.summary_is_loading;
+		const spinner_hidden = this.summary_is_loading ? "" : "hidden";
+		const disabled_attribute = is_disabled ? "disabled" : "";
+		return `
+			<div class="timeline-summary-item">
+				<button
+					type="button"
+					class="btn-sm"
+					data-action="timeline#summarizeFading"
+					${disabled_attribute}
+				>Summarize Unread Posts</button>
+				<img class="timeline-summary-spinner" src="/images/progress_spinner.svg" alt="" aria-hidden="true" ${spinner_hidden}>
+			</div>
+		`;
+	}
+
 	openSubscriptions(event) {
 		event?.preventDefault();
 		window.dispatchEvent(
 			new CustomEvent("subscriptions:open", { detail: { mode: "subscribe" } })
 		);
+	}
+
+	async summarizeFading(event) {
+		event?.preventDefault();
+		event?.stopPropagation();
+
+		if (this.activeSegment != "fading" || this.searchActive) {
+			return;
+		}
+
+		if (this.summary_is_loading) {
+			return;
+		}
+
+		const summary_posts = this.getVisiblePosts();
+		if (!summary_posts.length) {
+			return;
+		}
+
+		const unread_posts = summary_posts.filter((post) => !post.is_read);
+		if (!unread_posts.length) {
+			return;
+		}
+
+		const entry_ids = unread_posts.map((post) => post.id);
+		const request_token = this.summary_request_token + 1;
+		this.summary_request_token = request_token;
+		this.summary_is_loading = true;
+
+		if (this.activePostId) {
+			this.clearActivePost();
+		}
+		else {
+			this.render();
+		}
+
+		try {
+			const summary_html = await summarizeFeedEntries(entry_ids);
+			if (this.summary_request_token != request_token) {
+				return;
+			}
+
+			if (summary_html) {
+				window.dispatchEvent(
+					new CustomEvent("reader:summary", {
+						detail: { html: summary_html }
+					})
+				);
+			}
+		}
+		catch (error) {
+			console.warn("Failed to summarize posts", error);
+		}
+		finally {
+			if (this.summary_request_token == request_token) {
+				this.summary_is_loading = false;
+				this.render();
+			}
+		}
 	}
 
   openPost(post) {

@@ -310,6 +310,43 @@ export async function unstarFeedEntries(entryIds) {
 	});
 }
 
+export async function summarizeFeedEntries(entryIds) {
+	const ids = Array.isArray(entryIds) ? entryIds.filter(Boolean).map(String) : [];
+	if (ids.length == 0) {
+		return "";
+	}
+
+	const entry_ids = ids.map((id) => {
+		const numeric_id = Number(id);
+		return Number.isNaN(numeric_id) ? id : numeric_id;
+	});
+
+	const url = new URL("/feeds/summarize", `${getFeedsBaseUrl()}/`);
+	const headers = new Headers({
+		"Content-Type": "application/json",
+		"Accept": "text/html"
+	});
+	const token = getMicroBlogToken();
+	if (token) {
+		headers.set("Authorization", `Bearer ${token}`);
+	}
+
+	const response = await fetch(url, {
+		method: "POST",
+		headers,
+		body: JSON.stringify({ entry_ids })
+	});
+
+	if (!response.ok) {
+		const response_text = await response.text();
+		const request_error = new Error(`Feeds summarize failed: ${response.status}`);
+		request_error.response_text = response_text;
+		throw request_error;
+	}
+
+	return response.text();
+}
+
 async function fetchFeedsJson(path, options = {}) {
   const url = new URL(path, `${getFeedsBaseUrl()}/`);
   const headers = new Headers(options.headers || {});

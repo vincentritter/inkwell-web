@@ -527,6 +527,25 @@ button:focus:not(:focus-visible) {
 	padding: 0.5rem 0.75rem;
 }
 
+.timeline-summary-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-left: -10px;
+	margin-right: -10px;
+	margin-top: -10px;
+	margin-bottom: 10px;
+	padding: 0.6rem;
+	border-bottom: 1px solid var(--ink-card-border);
+	background-color: var(--ink-day-4-cell);
+}
+
+.timeline-summary-spinner {
+	width: 16px;
+	height: 16px;
+	animation: spinner-rotate 0.9s linear infinite;
+}
+
 .timeline.is-loading {
   opacity: 0;
   pointer-events: none;
@@ -545,7 +564,6 @@ button:focus:not(:focus-visible) {
   width: 100%;
   font-family: inherit;
   appearance: none;
-  /* transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; */
   margin-bottom: 10px;
 }
 
