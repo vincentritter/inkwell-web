@@ -110,10 +110,12 @@ export async function fetchMicroBlogAvatar() {
 }
 
 export function cacheFeedEntries(entries) {
-  entryCache.clear();
-  entries.forEach((entry) => {
-    entryCache.set(String(entry.id), entry);
-  });
+	if (!Array.isArray(entries)) {
+		return;
+	}
+	entries.forEach((entry) => {
+		entryCache.set(String(entry.id), entry);
+	});
 }
 
 export function getFeedEntry(entryId) {
@@ -210,6 +212,8 @@ export async function fetchFeedEntries() {
 	const entries = [];
 	let page = 1;
 	let hasMore = true;
+	const cached_limit = 25;
+	let cached_count = 0;
 	const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 	const cutoffTime = Date.now() - sevenDaysMs;
 
@@ -237,6 +241,15 @@ export async function fetchFeedEntries() {
 				hasMore = false;
 				break;
 			}
+
+			if (entry?.id != null && entryCache.has(String(entry.id))) {
+				cached_count += 1;
+				if (cached_count >= cached_limit) {
+					stopIndex = i + 1;
+					hasMore = false;
+					break;
+				}
+			}
 		}
 
 		entries.push(...pageEntries.slice(0, stopIndex));
@@ -244,6 +257,45 @@ export async function fetchFeedEntries() {
 			break;
 		}
 		page += 1;
+	}
+
+	let merged_count = 0;
+	const seen_ids = new Set();
+	entries.forEach((entry) => {
+		if (entry?.id != null) {
+			seen_ids.add(String(entry.id));
+		}
+	});
+	for (const cached_entry of entryCache.values()) {
+		const cached_id = cached_entry?.id;
+		if (cached_id == null) {
+			continue;
+		}
+		const cached_key = String(cached_id);
+		if (!seen_ids.has(cached_key)) {
+			entries.push(cached_entry);
+			seen_ids.add(cached_key);
+			merged_count += 1;
+		}
+	}
+
+	if (merged_count > 0) {
+		entries.sort((left, right) => {
+			const left_date = left?.published || left?.created_at;
+			const right_date = right?.published || right?.created_at;
+			const left_time = left_date ? new Date(left_date).getTime() : 0;
+			const right_time = right_date ? new Date(right_date).getTime() : 0;
+			if (Number.isNaN(left_time) && Number.isNaN(right_time)) {
+				return 0;
+			}
+			if (Number.isNaN(left_time)) {
+				return 1;
+			}
+			if (Number.isNaN(right_time)) {
+				return -1;
+			}
+			return right_time - left_time;
+		});
 	}
 
 	return entries;
