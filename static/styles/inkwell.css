@@ -541,7 +541,7 @@ button:focus:not(:focus-visible) {
 }
 
 .timeline-summary-detail {
-	font-size: 0.7rem;
+	font-size: 0.65rem;
 	color: var(--ink-muted);
 }
 
