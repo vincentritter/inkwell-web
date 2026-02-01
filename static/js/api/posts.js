@@ -1,4 +1,4 @@
-import { mockPosts } from "../mock_data.js";
+import { mockPosts, mockSubscriptions } from "../mock_data.js";
 import { USE_MOCK_DATA } from "../config.js";
 import {
   cacheFeedEntries,
@@ -32,6 +32,7 @@ export async function fetchTimelineData() {
       const publishedAt = entry.published || entry.created_at || new Date().toISOString();
       return {
         id: String(entry.id),
+        feed_id: entry.feed_id != null ? String(entry.feed_id) : "",
         source: resolveSource(subscription),
         source_url: resolveSourceUrl(subscription),
         title: entry.title,
@@ -46,12 +47,12 @@ export async function fetchTimelineData() {
       };
     });
 
-		return { posts, subscription_count };
+		return { posts, subscription_count, subscriptions };
   }
   catch (error) {
 		if (USE_MOCK_DATA) {
 			console.error("Failed to load feeds timeline", error);
-			return { posts: [...mockPosts], subscription_count: null };
+			return { posts: [...mockPosts], subscription_count: null, subscriptions: mockSubscriptions };
 		}
 		throw error;
   }

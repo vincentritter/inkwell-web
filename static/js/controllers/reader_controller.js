@@ -3,6 +3,7 @@ import { fetchReadableContent } from "../api/content.js";
 import { DEFAULT_AVATAR_URL } from "../api/posts.js";
 import { markFeedEntriesUnread } from "../api/feeds.js";
 import { markRead, markUnread } from "../storage/reads.js";
+import { parse_hash } from "../router.js";
 
 export default class extends Controller {
   static targets = ["content", "title", "meta", "avatar"];
@@ -12,23 +13,32 @@ export default class extends Controller {
 		this.handleAvatarError = this.handleAvatarError.bind(this);
 		this.handleWelcome = this.handleWelcome.bind(this);
 		this.handleClear = this.handleClear.bind(this);
+		this.handleResolvingRoute = this.handleResolvingRoute.bind(this);
 		this.handleSummary = this.handleSummary.bind(this);
 		this.handleKeydown = this.handleKeydown.bind(this);
 		this.handleToggleRead = this.handleToggleRead.bind(this);
 		window.addEventListener("post:open", this.handlePostOpen);
 		window.addEventListener("reader:welcome", this.handleWelcome);
 		window.addEventListener("reader:clear", this.handleClear);
+		window.addEventListener("reader:resolvingRoute", this.handleResolvingRoute);
 		window.addEventListener("reader:summary", this.handleSummary);
 		window.addEventListener("reader:toggleRead", this.handleToggleRead);
 		window.addEventListener("keydown", this.handleKeydown);
 		this.avatarTarget.addEventListener("error", this.handleAvatarError);
-		this.showPlaceholder();
+		const route = parse_hash();
+		if (route.postId || route.feedId || route.feedUrl) {
+			this.showResolving();
+		}
+		else {
+			this.showPlaceholder();
+		}
 	}
 
 	disconnect() {
 		window.removeEventListener("post:open", this.handlePostOpen);
 		window.removeEventListener("reader:welcome", this.handleWelcome);
 		window.removeEventListener("reader:clear", this.handleClear);
+		window.removeEventListener("reader:resolvingRoute", this.handleResolvingRoute);
 		window.removeEventListener("reader:summary", this.handleSummary);
 		window.removeEventListener("reader:toggleRead", this.handleToggleRead);
 		window.removeEventListener("keydown", this.handleKeydown);
@@ -91,6 +101,27 @@ export default class extends Controller {
 
 	handleClear() {
 		this.clearReader();
+	}
+
+	handleResolvingRoute() {
+		this.showResolving();
+	}
+
+	showResolving() {
+		this.setSummaryMode(false);
+		this.element.classList.remove("is-empty");
+		this.element.hidden = false;
+		this.currentPostId = null;
+		this.currentPostRead = false;
+		this.avatarTarget.hidden = true;
+		this.avatarTarget.src = "/images/blank_avatar.png";
+		this.avatarTarget.alt = "";
+		this.setTitle("");
+		this.metaTarget.textContent = "";
+		this.contentTarget.dataset.postId = "";
+		this.contentTarget.dataset.postUrl = "";
+		this.contentTarget.dataset.postTitle = "";
+		this.contentTarget.innerHTML = "<p class=\"loading\">Loading...</p>";
 	}
 
 	handleSummary(event) {
