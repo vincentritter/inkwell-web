@@ -1196,6 +1196,21 @@ button:focus:not(:focus-visible) {
 
 .reading-recap h2 {
 	margin-bottom: 0.7rem;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.reading-recap h2 img {
+	width: 20px;
+	height: 20px;
+	border-radius: 999px;
+	flex: 0 0 auto;
+	object-fit: cover;
+}
+
+.reading-recap ul {
+	margin-bottom: 2rem;
 }
 
 .reader-tabs.is-single {
