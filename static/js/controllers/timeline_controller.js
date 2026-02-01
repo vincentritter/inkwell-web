@@ -11,6 +11,7 @@ import {
 	unstarFeedEntries
 } from "../api/feeds.js";
 import { loadReadIds, markAllRead, markRead } from "../storage/reads.js";
+import { parse_hash, push_state, replace_state, ROUTE_CHANGE } from "../router.js";
 
 const SEGMENT_BUCKETS = {
   today: ["day-1"],
@@ -29,6 +30,9 @@ export default class extends Controller {
     this.activeSegment = "today";
     this.activePostId = null;
 		this.unreadOverridePostId = null;
+		this.activeFeedId = null;
+		this.subscriptions = [];
+		this.applying_route = false;
     this.posts = [];
     this.isLoading = true;
 		this.isSyncing = false;
@@ -59,6 +63,7 @@ export default class extends Controller {
 		this.handleAuthReady = this.handleAuthReady.bind(this);
 		this.handleAuthVerify = this.handleAuthVerify.bind(this);
 		this.handleTimelineSync = this.handleTimelineSync.bind(this);
+		this.handleUrlChange = this.handleUrlChange.bind(this);
     this.listTarget.addEventListener("click", this.handleClick);
 		this.listTarget.addEventListener("error", this.handleAvatarError, true);
 		this.searchInputTarget.addEventListener("keydown", this.handleSearchKeydown);
@@ -71,6 +76,7 @@ export default class extends Controller {
 		window.addEventListener("auth:ready", this.handleAuthReady);
 		window.addEventListener("auth:verify", this.handleAuthVerify);
 		window.addEventListener("timeline:sync", this.handleTimelineSync);
+		window.addEventListener(ROUTE_CHANGE, this.handleUrlChange);
     this.listTarget.classList.add("is-loading");
     this.load();
 		this.startRefreshTimer();
@@ -89,6 +95,7 @@ export default class extends Controller {
 		window.removeEventListener("auth:ready", this.handleAuthReady);
 		window.removeEventListener("auth:verify", this.handleAuthVerify);
 		window.removeEventListener("timeline:sync", this.handleTimelineSync);
+		window.removeEventListener(ROUTE_CHANGE, this.handleUrlChange);
     this.clearReadSyncTimer();
 		this.stopRefreshTimer();
   }
@@ -97,6 +104,11 @@ export default class extends Controller {
     if (this.isSyncing) {
       return;
     }
+
+		const initial_route = parse_hash();
+		if (initial_route.postId || initial_route.feedId || initial_route.feedUrl) {
+			window.dispatchEvent(new CustomEvent("reader:resolvingRoute"));
+		}
 
 		const load_token = this.timeline_load_token + 1;
 		this.timeline_load_token = load_token;
@@ -110,6 +122,7 @@ export default class extends Controller {
       this.readIds = new Set(read_ids);
       this.posts = timeline_data.posts || [];
 			this.subscriptionCount = timeline_data.subscription_count;
+			this.subscriptions = Array.isArray(timeline_data.subscriptions) ? timeline_data.subscriptions : [];
       this.posts.forEach((post) => {
         if (this.readIds.has(post.id)) {
           post.is_read = true;
@@ -120,8 +133,13 @@ export default class extends Controller {
     }
     catch (error) {
       console.warn("Failed to load timeline", error);
+      const state = parse_hash();
+      if (state.postId || state.feedId || state.feedUrl) {
+        replace_state({});
+      }
     }
     finally {
+      this.apply_route_from_url(parse_hash());
       this.isLoading = false;
       this.listTarget.classList.remove("is-loading");
       this.render();
@@ -356,7 +374,6 @@ export default class extends Controller {
 
 		if (event.metaKey) {
 			this.clearActivePost();
-			window.dispatchEvent(new CustomEvent("reader:clear"));
 			return;
 		}
 
@@ -365,14 +382,100 @@ export default class extends Controller {
 		this.openPost(post);
   }
 
-	clearActivePost() {
+	clearActivePost(skip_url_update) {
 		if (!this.activePostId) {
+			if (!skip_url_update) {
+				push_state({ feedId: this.activeFeedId || null, postId: null });
+			}
 			return;
 		}
 
 		this.activePostId = null;
 		this.unreadOverridePostId = null;
 		this.render();
+		window.dispatchEvent(new CustomEvent("reader:welcome"));
+		if (!skip_url_update) {
+			push_state({ feedId: this.activeFeedId || null, postId: null });
+		}
+	}
+
+	resolve_feed_url_to_id(feed_url) {
+		if (!feed_url || !this.subscriptions.length) {
+			return null;
+		}
+		let normalized_input = "";
+		try {
+			normalized_input = new URL(feed_url).href;
+		}
+		catch (e) {
+			try {
+				normalized_input = new URL(`https://${feed_url}`).href;
+			}
+			catch (e2) {
+				return null;
+			}
+		}
+		const sub = this.subscriptions.find((s) => {
+			const raw = s.feed_url || s.site_url || "";
+			if (!raw) return false;
+			try {
+				return new URL(raw).href == normalized_input;
+			}
+			catch (e) {
+				try {
+					return new URL(`https://${raw}`).href == normalized_input;
+				}
+				catch (e2) {
+					return false;
+				}
+			}
+		});
+		return sub && sub.feed_id != null ? String(sub.feed_id) : null;
+	}
+
+	apply_route_from_url(state) {
+		if (!state) {
+			state = parse_hash();
+		}
+		this.applying_route = true;
+		if (state.feedId != null && state.feedId != "") {
+			this.activeFeedId = state.feedId;
+		}
+		else if (state.feedUrl != null && state.feedUrl != "") {
+			const resolved = this.resolve_feed_url_to_id(state.feedUrl);
+			this.activeFeedId = resolved;
+		}
+		else {
+			this.activeFeedId = null;
+		}
+		const has_feed = this.activeFeedId != null && this.activeFeedId != "" &&
+			(this.posts.some((p) => (p.feed_id || "") == this.activeFeedId) ||
+				this.subscriptions.some((s) => String(s.feed_id || "") == this.activeFeedId));
+		if (this.activeFeedId && !has_feed) {
+			this.activeFeedId = null;
+		}
+		if (state.postId != null && state.postId != "") {
+			const post = this.posts.find((p) => p.id == state.postId);
+			if (post) {
+				this.openPost(post, true);
+			}
+			else {
+				replace_state({});
+				this.clearActivePost(true);
+				window.dispatchEvent(new CustomEvent("reader:welcome"));
+			}
+		}
+		else {
+			this.clearActivePost(true);
+			window.dispatchEvent(new CustomEvent("reader:welcome"));
+		}
+		this.applying_route = false;
+		this.render();
+	}
+
+	handleUrlChange(event) {
+		const state = event.detail || parse_hash();
+		this.apply_route_from_url(state);
 	}
 
   handleUnread(event) {
@@ -793,7 +896,7 @@ export default class extends Controller {
 		}
 	}
 
-  openPost(post) {
+  openPost(post, skip_url_update) {
     if (!post) {
       return;
     }
@@ -816,6 +919,9 @@ export default class extends Controller {
 
     window.dispatchEvent(new CustomEvent("post:open", { detail: { post } }));
     this.scrollActivePostIntoView();
+		if (!skip_url_update) {
+			push_state({ feedId: this.activeFeedId || null, postId: post.id });
+		}
   }
 
   selectAdjacentPost(offset) {
@@ -881,7 +987,11 @@ export default class extends Controller {
 		}
 
 		const segment_buckets = SEGMENT_BUCKETS[this.activeSegment] || [];
-		return this.posts.filter((post) => segment_buckets.includes(post.age_bucket));
+		let base = this.posts.filter((post) => segment_buckets.includes(post.age_bucket));
+		if (this.activeFeedId != null && this.activeFeedId != "") {
+			base = base.filter((post) => (post.feed_id || "") == this.activeFeedId);
+		}
+		return base;
 	}
 
 	getSearchResults() {
@@ -1078,7 +1188,7 @@ export default class extends Controller {
 
 		this.activePostId = null;
 		this.unreadOverridePostId = null;
-		window.dispatchEvent(new CustomEvent("reader:clear"));
+		window.dispatchEvent(new CustomEvent("reader:welcome"));
 	}
 
 	captureHideReadSnapshot() {
