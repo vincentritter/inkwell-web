@@ -622,6 +622,7 @@ export default class extends Controller {
 		if (event.key == "Enter") {
 			event.preventDefault();
 			this.performSearch();
+			this.focusTimeline();
 		}
 	}
 
@@ -631,6 +632,16 @@ export default class extends Controller {
 			this.search_input_debounce_timer = null;
 			this.performSearch();
 		}, 100);
+	}
+
+	focusTimeline() {
+		if (!this.listTarget) {
+			return;
+		}
+		if (!this.listTarget.hasAttribute("tabindex")) {
+			this.listTarget.setAttribute("tabindex", "-1");
+		}
+		this.listTarget.focus();
 	}
 
 	clearSearchInputDebounce() {
