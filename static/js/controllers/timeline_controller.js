@@ -398,7 +398,7 @@ export default class extends Controller {
 		this.activePostId = null;
 		this.unreadOverridePostId = null;
 		this.render();
-		window.dispatchEvent(new CustomEvent("reader:welcome"));
+		window.dispatchEvent(new CustomEvent("reader:clear"));
 		if (!skip_url_update) {
 			push_state({ feedId: this.activeFeedId || null, postId: null });
 		}
