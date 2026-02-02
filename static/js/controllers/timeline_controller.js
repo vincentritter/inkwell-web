@@ -627,6 +627,7 @@ export default class extends Controller {
 		if (event.key == "Enter") {
 			event.preventDefault();
 			this.performSearch();
+			this.selectFirstSearchResult();
 			this.focusTimeline();
 		}
 	}
@@ -637,16 +638,6 @@ export default class extends Controller {
 			this.search_input_debounce_timer = null;
 			this.performSearch();
 		}, 100);
-	}
-
-	focusTimeline() {
-		if (!this.listTarget) {
-			return;
-		}
-		if (!this.listTarget.hasAttribute("tabindex")) {
-			this.listTarget.setAttribute("tabindex", "-1");
-		}
-		this.listTarget.focus();
 	}
 
 	clearSearchInputDebounce() {
@@ -660,6 +651,30 @@ export default class extends Controller {
 		const search_query = this.searchInputTarget.value.trim();
 		this.searchQuery = search_query;
 		this.render();
+	}
+
+	focusTimeline() {
+		if (!this.listTarget) {
+			return;
+		}
+		if (!this.listTarget.hasAttribute("tabindex")) {
+			this.listTarget.setAttribute("tabindex", "-1");
+		}
+		this.listTarget.focus();
+	}
+
+	selectFirstSearchResult() {
+		const results = this.getSearchResults();
+		if (!results.length) {
+			return;
+		}
+
+		const first_post = results[0];
+		if (first_post.id == this.activePostId) {
+			return;
+		}
+
+		this.openPost(first_post);
 	}
 
 	openActivePost() {

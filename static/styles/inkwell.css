@@ -776,6 +776,10 @@ button:focus:not(:focus-visible) {
   display: none;
 }
 
+.right-pane.is-resolving .reader-header {
+	display: none;
+}
+
 .right-pane.is-summary .reader-header {
 	display: none;
 }

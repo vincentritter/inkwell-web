@@ -55,6 +55,7 @@ export default class extends Controller {
     }
 
 		this.setSummaryMode(false);
+		this.element.classList.remove("is-resolving");
     this.element.classList.remove("is-empty");
 		this.element.hidden = false;
     this.currentPostTitle = post.title || "Untitled";
@@ -135,6 +136,7 @@ export default class extends Controller {
 
 	showResolving() {
 		this.setSummaryMode(false);
+		this.element.classList.add("is-resolving");
 		this.element.classList.remove("is-empty");
 		this.element.hidden = false;
 		this.currentPostId = null;
@@ -147,12 +149,13 @@ export default class extends Controller {
 		this.contentTarget.dataset.postId = "";
 		this.contentTarget.dataset.postUrl = "";
 		this.contentTarget.dataset.postTitle = "";
-		this.contentTarget.innerHTML = "<p class=\"loading\">Loading...</p>";
+		this.contentTarget.innerHTML = "";
 	}
 
 	handleSummary(event) {
 		const summary_html = event.detail?.html || "";
 		this.setSummaryMode(true);
+		this.element.classList.remove("is-resolving");
 		this.element.classList.remove("is-empty");
 		this.element.hidden = false;
 		this.currentPostId = null;
@@ -172,6 +175,7 @@ export default class extends Controller {
 
 	clearReader() {
 		this.setSummaryMode(false);
+		this.element.classList.remove("is-resolving");
 		this.currentPostId = null;
 		this.currentPostRead = false;
 		this.avatarTarget.hidden = true;
@@ -189,6 +193,7 @@ export default class extends Controller {
 
 	showPlaceholder() {
 		this.setSummaryMode(false);
+		this.element.classList.remove("is-resolving");
 		this.element.classList.add("is-empty");
 		this.element.hidden = false;
 		this.currentPostId = null;
