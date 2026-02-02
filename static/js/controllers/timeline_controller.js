@@ -883,12 +883,7 @@ export default class extends Controller {
 		this.summary_request_token = request_token;
 		this.summary_is_loading = true;
 
-		if (this.activePostId) {
-			this.clearActivePost();
-		}
-		else {
-			this.render();
-		}
+		this.render();
 
 		try {
 			const summary_html = await summarizeFeedEntries(entry_ids);

@@ -1,7 +1,7 @@
 import { Controller } from "../stimulus.js";
 
 export default class extends Controller {
-	static targets = ["button", "popover", "newPost", "copyLink", "toggleRead", "bookmark"];
+	static targets = ["button", "popover", "newPost", "copyLink", "toggleRead", "bookmark", "toggleReadLabel", "bookmarkLabel"];
 
 	connect() {
 		this.current_post_id = "";
@@ -152,8 +152,18 @@ export default class extends Controller {
 		const bookmark_label = this.is_bookmarked ? "Unbookmark" : "Bookmark";
 		this.newPostTarget.disabled = !has_link;
 		this.copyLinkTarget.disabled = !has_link;
-		this.toggleReadTarget.textContent = read_label;
-		this.bookmarkTarget.textContent = bookmark_label;
+		if (this.hasToggleReadLabelTarget) {
+			this.toggleReadLabelTarget.textContent = read_label;
+		}
+		else {
+			this.toggleReadTarget.textContent = read_label;
+		}
+		if (this.hasBookmarkLabelTarget) {
+			this.bookmarkLabelTarget.textContent = bookmark_label;
+		}
+		else {
+			this.bookmarkTarget.textContent = bookmark_label;
+		}
 		this.toggleReadTarget.disabled = !has_post;
 		this.bookmarkTarget.disabled = !has_post;
 	}
