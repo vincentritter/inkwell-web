@@ -7,6 +7,8 @@ export default class extends Controller {
 
   connect() {
     this.activePostId = null;
+		this.activePostSource = "";
+		this.activePostHasTitle = false;
     this.highlights = [];
     this.handleHighlight = this.handleHighlight.bind(this);
 		this.handleHighlightUpdate = this.handleHighlightUpdate.bind(this);
@@ -29,6 +31,8 @@ export default class extends Controller {
   async handlePostOpen(event) {
     const { post } = event.detail;
     this.activePostId = post?.id || null;
+		this.activePostSource = post?.source || "";
+		this.activePostHasTitle = this.hasPostTitle(post?.title, post?.summary);
     this.highlights = await getHighlightsForPost(this.activePostId);
     this.showReader();
     this.render();
@@ -36,6 +40,8 @@ export default class extends Controller {
 
 	handleSummary() {
 		this.activePostId = null;
+		this.activePostSource = "";
+		this.activePostHasTitle = false;
 		this.highlights = [];
 		this.showReader();
 		this.render();
@@ -191,16 +197,25 @@ export default class extends Controller {
   }
 
   buildPostMarkdown(highlight) {
-    const title = (highlight.post_title || "Post").trim();
-    const url = (highlight.post_url || "").trim();
-    const link = url ? `[${title}](${url})` : title;
-    const quote = this.formatQuote(highlight.text || "");
+		const post_title = (highlight.post_title || "").trim();
+		const fallback_source = (this.activePostSource || "").trim();
+		const post_source = (highlight.post_source || fallback_source).trim();
+		const post_has_title = (highlight.post_has_title != null)
+			? highlight.post_has_title == true
+			: this.activePostHasTitle;
+		let link_title = post_title;
+		if (!post_has_title || !link_title || link_title.toLowerCase() == "untitled") {
+			link_title = post_source || "Post";
+		}
+		const post_url = (highlight.post_url || "").trim();
+		const link = post_url ? `[${link_title}](${post_url})` : link_title;
+		const quote = this.formatQuote(highlight.text || "");
 
-    if (!quote) {
-      return link;
-    }
+		if (!quote) {
+			return link;
+		}
 
-    return `${link}\n\n${quote}`;
+		return `${link}\n\n${quote}`;
   }
 
   formatQuote(text) {
@@ -214,6 +229,29 @@ export default class extends Controller {
       .map((line) => `> ${line}`)
       .join("\n");
   }
+
+	hasPostTitle(title, summary) {
+		const normalized_title = (title || "").trim().replace(/\s+/g, " ");
+		if (!normalized_title || normalized_title.toLowerCase() == "untitled") {
+			return false;
+		}
+
+		const normalized_summary = (summary || "").trim().replace(/\s+/g, " ");
+		if (normalized_summary) {
+			if (normalized_summary == normalized_title) {
+				return false;
+			}
+
+			const shared_prefix = normalized_title.startsWith(normalized_summary) ||
+				normalized_summary.startsWith(normalized_title);
+			const prefix_length = Math.min(normalized_title.length, normalized_summary.length);
+			if (shared_prefix && prefix_length >= 40) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
   async copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {

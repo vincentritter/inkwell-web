@@ -94,6 +94,8 @@ export default class extends Controller {
 			post_id: this.contentTarget.dataset.postId || "",
 			post_url: this.contentTarget.dataset.postUrl || "",
 			post_title: this.contentTarget.dataset.postTitle || "",
+			post_source: this.contentTarget.dataset.postSource || "",
+			post_has_title: this.contentTarget.dataset.postHasTitle == "true",
 			text,
 			html: text,
 			start_offset: selection_payload.start_offset,
@@ -134,8 +136,14 @@ export default class extends Controller {
 			return;
 		}
 
-		const post_title = (this.contentTarget.dataset.postTitle || "Post").trim();
-		const link = `[${post_title || "Post"}](${post_url})`;
+		const post_title = (this.contentTarget.dataset.postTitle || "").trim();
+		const post_source = (this.contentTarget.dataset.postSource || "").trim();
+		const post_has_title = this.contentTarget.dataset.postHasTitle == "true";
+		let link_title = post_title;
+		if (!post_has_title || !link_title || link_title.toLowerCase() == "untitled") {
+			link_title = post_source || "Post";
+		}
+		const link = `[${link_title}](${post_url})`;
 		const quote = this.formatQuote(text);
 		const markdown = quote ? `${link}:\n\n${quote}` : link;
 		const encoded = encodeURIComponent(markdown);
