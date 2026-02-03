@@ -1,4 +1,5 @@
 import { Controller } from "../stimulus.js";
+import { deleteMicroBlogHighlight } from "../api/highlights.js";
 import { deleteHighlight, getHighlightsForPost } from "../storage/highlights.js";
 
 export default class extends Controller {
@@ -8,9 +9,11 @@ export default class extends Controller {
     this.activePostId = null;
     this.highlights = [];
     this.handleHighlight = this.handleHighlight.bind(this);
+		this.handleHighlightUpdate = this.handleHighlightUpdate.bind(this);
     this.handlePostOpen = this.handlePostOpen.bind(this);
 		this.handleSummary = this.handleSummary.bind(this);
     window.addEventListener("highlight:create", this.handleHighlight);
+		window.addEventListener("highlight:update", this.handleHighlightUpdate);
     window.addEventListener("post:open", this.handlePostOpen);
 		window.addEventListener("reader:summary", this.handleSummary);
     this.render();
@@ -18,6 +21,7 @@ export default class extends Controller {
 
   disconnect() {
     window.removeEventListener("highlight:create", this.handleHighlight);
+		window.removeEventListener("highlight:update", this.handleHighlightUpdate);
     window.removeEventListener("post:open", this.handlePostOpen);
 		window.removeEventListener("reader:summary", this.handleSummary);
   }
@@ -39,13 +43,28 @@ export default class extends Controller {
 
   handleHighlight(event) {
     const highlight = event.detail;
-    if (!highlight || highlight.post_id !== this.activePostId) {
+    if (!highlight || highlight.post_id != this.activePostId) {
       return;
     }
 
     this.highlights = [highlight, ...this.highlights];
     this.render();
   }
+
+	handleHighlightUpdate(event) {
+		const highlight = event.detail;
+		if (!highlight || highlight.post_id != this.activePostId) {
+			return;
+		}
+
+		const highlight_index = this.highlights.findIndex((item) => item.id == highlight.id);
+		if (highlight_index < 0) {
+			return;
+		}
+
+		this.highlights[highlight_index] = { ...this.highlights[highlight_index], ...highlight };
+		this.render();
+	}
 
   showHighlights() {
     if (!this.highlights.length) {
@@ -134,6 +153,12 @@ export default class extends Controller {
     }
 
     try {
+			if (highlight.highlight_id) {
+				await deleteMicroBlogHighlight({
+					post_id: highlight.post_id,
+					highlight_id: highlight.highlight_id
+				});
+			}
       await deleteHighlight(highlight.post_id, highlight.id);
     }
     catch (error) {
