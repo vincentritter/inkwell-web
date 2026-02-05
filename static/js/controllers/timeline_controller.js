@@ -405,7 +405,7 @@ export default class extends Controller {
 
 		const clicked_avatar = event.target.closest(".avatar");
 		if (clicked_avatar && item.contains(clicked_avatar)) {
-			this.setFeedFilter(post.feed_id, post.source || "");
+			this.setFeedFilter(post.feed_id, post.source || "", true);
 		}
 
 		this.openPost(post);
